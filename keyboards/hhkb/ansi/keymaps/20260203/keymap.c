@@ -115,98 +115,98 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 //US for Ubuntu(US layout keyboard setting)
 //JP for Windows(jp layout keyboard setting)
 
-  [JBASE] = LAYOUT_60_hhkb( /* Qwerty 106 jpkey */
+  [JBASE] = LAYOUT( /* Qwerty 106 jpkey */
     KC_ESC, KC_1,   KC_2,   KC_3,   KC_4,   KC_5,   KC_6,   KC_7,   KC_8,   KC_9,   KC_0,   JP_MINS,JP_EQL, JP_BSLS,JP_GRV,
     KC_TAB, Q_FN,   KC_W,   KC_E,   KC_R,   KC_T,   KC_Y,   KC_U,   KC_I,   KC_O,   KC_P,   SL_ALT,JP_RBRC,KC_BSPC,
     KC_LCTL,A_GUI,  S_ALT,  D_SFT,  F_CTL,  KC_G,   KC_H,   J_CTL,  K_SFT,  L_ALT,  CM_FNSC,CM_JHNZ,KC_ENT,
     KC_LSFT,KC_Z,   X_CTL,  KC_C,   KC_V,   KC_B,   KC_N,   KC_M,   CM_FNCM,CM_FNQU,SL_SFT, KC_RSFT,LT_SYS,
     KC_LGUI,KC_LALT,CM_SPFN,KC_RALT,KC_RGUI),
 
-  [UBASE] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
+  [UBASE] = LAYOUT( /* Qwerty 101 uskey */
     KC_ESC, KC_1,   KC_2,   KC_3,   KC_4,   KC_5,   KC_6,   KC_7,   KC_8,   KC_9,   KC_0,   KC_MINS,KC_EQL, KC_BSLS,KC_GRV,
     KC_TAB, KC_Q,   KC_W,   KC_E,   KC_R,   KC_T,   KC_Y,   KC_U,   KC_I,   KC_O,   KC_P,   SL_ALT,KC_RBRC,KC_BSPC,
     KC_LCTL,A_ALT,  KC_S,   KC_D,   F_CTL,  KC_G,   KC_H,   KC_J,   KC_K,   KC_L,   CM_FNSC,CM_UHNZ,KC_ENT,
     KC_LSFT,Z_SFT,  X_CTL,  KC_C,   KC_V,   KC_B,   KC_N,   KC_M,   CM_FNCM,CM_FNQU,SL_SFT, KC_RSFT,LT_SYS,
     KC_LGUI,KC_LALT,CM_SPFN,KC_RALT,KC_RGUI),
 
-  [JSYM] = LAYOUT_60_hhkb(
+  [JSYM] = LAYOUT(
     _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
     _______,JP_EXLM,JP_AT,  JP_HASH,JP_DLR, JP_PERC,_______,_______,_______,_______,_______,_______,_______,_______,
     _______,JP_UNDS,JP_PLUS,JP_EQL ,JP_ASTR,JP_CIRC,_______,_______,_______,_______,_______,_______,_______,
     _______,JP_BSLS,JP_AMPR,JP_PIPE,JP_TILD,JP_GRV, _______,_______,_______,_______,_______,_______,_______,
     _______,_______,_______,_______,_______),
 
-  [USYM] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
+  [USYM] = LAYOUT( /* Qwerty 101 uskey */
     _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
     _______,KC_EXLM,KC_AT,  KC_HASH,KC_DLR, KC_PERC,_______,_______,_______,_______,_______,_______,_______,_______,
     _______,KC_UNDS,KC_PLUS,KC_EQL, KC_ASTR,KC_CIRC,_______,_______,_______,_______,_______,_______,_______,
     _______,KC_BSLS,KC_AMPR,KC_PIPE,KC_TILD,KC_GRV, _______,_______,_______,_______,_______,_______,_______,
     _______,_______,_______,_______,_______),
 
-  [JSYM2] = LAYOUT_60_hhkb(
+  [JSYM2] = LAYOUT(
     _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
     _______,_______,JP_LPRN,JP_RPRN,JP_LBRC,JP_RBRC,_______,_______,_______,_______,_______,_______,_______,_______,
     _______,JP_QUOT,JP_DQUO,JP_MINS,JP_LCBR,JP_RCBR,CM_SF10,CM_CAPS,CM_JHNZ,_______,_______,_______,_______,
     _______,JP_QUES,JP_COLN,JP_LABK,JP_RABK,JP_SCLN,_______,_______,_______,_______,_______,_______,_______,
     _______,_______,_______,_______,_______),
 
-  [USYM2] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
+  [USYM2] = LAYOUT( /* Qwerty 101 uskey */
     _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
     _______,_______,KC_LPRN,KC_RPRN,KC_LBRC,KC_RBRC,_______,_______,_______,_______,_______,_______,_______,_______,
     _______,KC_QUOT,KC_DQUO,KC_MINS,KC_LCBR,KC_RCBR,CM_SF10,CM_CAPS,CM_UHNZ,_______,_______,_______,_______,
     _______,KC_QUES,KC_COLN,KC_LABK,KC_RABK,KC_SCLN,_______,_______,_______,_______,_______,_______,_______,
     _______,_______,_______,_______,_______),
 
-  [JSPFN] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
+  [JSPFN] = LAYOUT( /* Qwerty 101 uskey */
     _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
     _______,MO_HYPS,CM_ALCT,KC_ESC ,SW_ATAB,_______,CM_STAB,KC_HOME,KC_UP,  KC_END, KC_TAB, _______,_______,_______,
     _______,KC_LGUI,KC_LALT,KC_LSFT,KC_LCTL,_______,KC_BSPC,KC_LEFT,KC_DOWN,KC_RGHT,KC_ENT, _______,_______,
     _______,KC_1   ,KC_2   ,KC_3   ,KC_4   ,KC_5   ,KC_6   ,KC_7   ,KC_8   ,KC_9   ,KC_0   ,_______,_______,
     _______,_______,_______,_______,_______),
 
-  [USPFN] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
+  [USPFN] = LAYOUT( /* Qwerty 101 uskey */
     _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
     _______,MO_HYPS,CM_ALCT,KC_ESC ,SW_ATAB,_______,CM_STAB,KC_HOME,KC_UP,  KC_END, KC_TAB, _______,_______,_______,
     _______,KC_LGUI,KC_LALT,KC_LSFT,KC_LCTL,_______,KC_BSPC,KC_LEFT,KC_DOWN,KC_RGHT,KC_ENT, _______,_______,
     _______,KC_1   ,KC_2   ,KC_3   ,KC_4   ,KC_5   ,KC_6   ,KC_7   ,KC_8   ,KC_9   ,KC_0   ,_______,_______,
     _______,_______,_______,_______,_______),
 
-  [UFN] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
+  [UFN] = LAYOUT( /* Qwerty 101 uskey */
     _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
     _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
     _______,KC_F1,  KC_F2,  KC_F3,  KC_F4,  KC_F5  ,_______,_______,_______,_______,_______,_______,_______,
     _______,KC_F6,  KC_F7,  KC_F8,  KC_F9,  KC_F10, KC_F11, KC_F12 ,_______,_______,KC_LSFT,_______,_______,
     _______,_______,_______,_______,_______),
 
-  [JFN] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
+  [JFN] = LAYOUT( /* Qwerty 101 uskey */
     _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
     _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
     _______,KC_F1,  KC_F2,  KC_F3,  KC_F4,  KC_F5  ,_______,_______,_______,_______,_______,_______,_______,
     _______,KC_F6,  KC_F7,  KC_F8,  KC_F9,  KC_F10, KC_F11, KC_F12 ,_______,_______,KC_LSFT,_______,_______,
     _______,_______,_______,_______,_______),
 
-  [EXCL] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
+  [EXCL] = LAYOUT( /* Qwerty 101 uskey */
     _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
     _______,_______,_______,_______,_______,_______,_______,CM_CHOM,KC_PGUP,CM_CEND,_______,_______,_______,_______,
     _______,_______,_______,_______,_______,_______,_______,CM_CPGU,KC_PGDN,CM_CPGD,_______,_______,_______,
     _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
     _______,_______,_______,_______,_______),
 
-  [HYPE] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
+  [HYPE] = LAYOUT( /* Qwerty 101 uskey */
     _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
     _______,_______,CM_ALT4,KC_ESC, KC_DEL, CM_WSCS,_______,KC_PGUP,CM_UP,  KC_PGDN,_______,_______,_______,_______,
     _______,_______,_______,_______,_______,_______,_______,CM_LEFT,CM_DOWN,CM_RGHT,_______,_______,_______,
     _______,_______,_______,_______,_______,_______,_______,CM_CHOM,CM_CPGU,CM_CPGD,CM_CEND,_______,_______,
     _______,_______,_______,_______,_______),
 
-  [HHKB] = LAYOUT_60_hhkb(
+  [HHKB] = LAYOUT(
     KC_PWR, KC_F1, KC_F2, KC_F3, KC_F4, KC_F5, KC_F6, KC_F7, KC_F8, KC_F9, KC_F10, KC_F11, KC_F12, KC_INS, KC_DEL,
     KC_CAPS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_PSCR, KC_SCRL, KC_PAUS, KC_UP, KC_TRNS, KC_BSPC,
     KC_TRNS, KC_VOLD, KC_VOLU, KC_MUTE, KC_TRNS, KC_TRNS, KC_PAST, KC_PSLS, KC_HOME, KC_PGUP, KC_LEFT, KC_RGHT, KC_PENT,
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_PPLS, KC_PMNS, KC_END, KC_PGDN, KC_DOWN, KC_TRNS, KC_TRNS,
     KC_TRNS, KC_TRNS, KC_TRNS, DF_JBAS,DF_UBAS),
 
-  [ALTTAB] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
+  [ALTTAB] = LAYOUT( /* Qwerty 101 uskey */
     _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
     _______,_______,CM_STAB,_______,KC_TAB, _______,_______,_______,KC_UP,  _______,_______,_______,_______,_______,
     _______,_______,_______,_______,_______,_______,_______,KC_LEFT,KC_DOWN,KC_RGHT,_______,_______,_______,
@@ -216,7 +216,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 
 const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
-    LAYOUT_60_hhkb(
+    LAYOUT(
         'L','L','L','L','L','L','L','R','R','R','R','R','R','R','R',
         'L','L','L','L','L','L','L','R','R','R','R','R','R','R',
         'L','L','L','L','L','L','L','R','R','R','R','R','R',
@@ -628,10 +628,3 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
-void keyboard_post_init_user(void) {
-        /* Customise these values to desired behaviour */
-        debug_enable=true;
-        /* debug_matrix=true; */
-        /* debug_keyboard=true; */
-        /* debug_mouse=true; */
-}
