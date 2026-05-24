@@ -1,4 +1,7 @@
-//./util/docker_build.sh bault35_202601:20260201
+//***cmd***
+//   ./util/docker_build.sh hhkb/classic/dapboot:20250810
+//   sudo dfu-util -d 1209:db42 -a 0 -D hhkb_classic.bin
+//***cmd***
 /*  -*-  eval: (turn-on-orgtbl); -*-
  * default HHKB Layout
  */
@@ -12,16 +15,14 @@
 #define USYM    3
 #define JSYM2   4
 #define USYM2   5
-//#define JSYM3   6
-//#define USYM3   7
-#define JSPFN   8
-#define USPFN   9
-#define UFN     10
-#define JFN     11
-#define EXCL    12
-#define HYPE    13
-#define ALTTAB  14
-#define CONFIG  15
+#define JSPFN   6
+#define USPFN   7
+#define UFN     8
+#define JFN     9
+#define EXCL    10
+#define HYPE    11
+#define HHKB    12
+#define ALTTAB  13
 
 #define KC_MSDN    KC_MS_DOWN
 #define KC_MSUP    KC_MS_UP
@@ -29,9 +30,7 @@
 #define KC_MSRT    KC_MS_RIGHT
 
 #define LT_EXCL LT(EXCL,KC_ESC)
-#define LT_SYS  LT(CONFIG,KC_PSCR)
-//#define J_JSYM  LT(JSYM3,KC_J)
-//#define F_JSYM  LT(JSYM3,KC_F)
+#define LT_SYS  LT(HHKB,KC_PSCR)
 #define MO_HYPS MO(HYPE)
 #define MO_JSM2 MO(JSYM2)
 #define MO_USM2 MO(USYM2)
@@ -41,9 +40,9 @@
 #define BK_SFT SFT_T(KC_BSPC)
 #define SL_SFT SFT_T(KC_SLSH)
 #define SL_ALT LALT_T(KC_SLSH)
-#define S_SFT LSFT_T(KC_S)
-#define L_SFT RSFT_T(KC_L)
-#define Z_SFT LSFT_T(KC_Z)
+#define Z_SFT SFT_T(KC_Z)
+#define S_SFT SFT_T(KC_S)
+#define L_SFT SFT_T(KC_L)
 #define A_ALT LALT_T(KC_A)
 
 #define CM_CPGU C(KC_PGUP)
@@ -85,10 +84,8 @@ enum custom_keycodes {
   CM_FNSC,
   CM_FNQU,
   CM_FNCM,
-  CM_CAON,
-  CM_CAOF,
+  CM_CAPS,
   CM_ALCT,
-  CM_SFTF,
   SW_LSFT,
   SW_LALT,
   SW_LCTL,
@@ -98,120 +95,122 @@ enum custom_keycodes {
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
-//  [SPFN] = LAYOUT( /* Qwerty 101 uskey */
-//    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
-//    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
-//    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
-//    _______,_______,_______,_______,_______,_______),
+//  [SPFN] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
+//    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+//    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+//    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+//    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+//    _______,_______,_______,_______,_______),
 
 //US for Ubuntu(US layout keyboard setting)
 //JP for Windows(jp layout keyboard setting)
 
-  [JBASE] = LAYOUT( /* Qwerty 106 jpkey */
-    KC_Q,   KC_W,   KC_E,   KC_R,   KC_T,   KC_Y,   KC_U,   KC_I,   KC_O,   KC_P,   CM_CAOF,
-    A_ALT,  KC_S,   KC_D,   KC_F,   KC_G,   KC_H,   KC_J,   KC_K,   KC_L,  CM_FNSC,
-    Z_SFT,  KC_X,   KC_C,   KC_V,   KC_B,   KC_N,   KC_M,   CM_FNCM,CM_FNQU,SL_SFT,
-    KC_LGUI,KC_LCTL,CM_SFTF,CM_SPFN,CM_CAON,LT_SYS),
+  [JBASE] = LAYOUT_60_hhkb( /* Qwerty 106 jpkey */
+    KC_ESC, KC_1,   KC_2,   KC_3,   KC_4,   KC_5,   KC_6,   KC_7,   KC_8,   KC_9,   KC_0,   JP_MINS,JP_EQL, JP_BSLS,JP_GRV,
+    KC_TAB, KC_Q,   KC_W,   KC_E,   KC_R,   KC_T,   KC_Y,   KC_U,   KC_I,   KC_O,   KC_P,   SL_ALT,JP_RBRC,KC_BSPC,
+    KC_LCTL,A_ALT,  S_SFT,  KC_D,   KC_F,   KC_G,   KC_H,   KC_J,   KC_K,   L_SFT,  CM_FNSC,CM_JHNZ,KC_ENT,
+    KC_LSFT,KC_Z,   KC_X,   KC_C,   KC_V,   KC_B,   KC_N,   KC_M,   CM_FNCM,CM_FNQU,KC_SLSH,KC_RSFT,LT_SYS,
+    KC_LGUI,KC_LALT,CM_SPFN,KC_RALT,KC_RGUI),
 
-  [UBASE] = LAYOUT( /* Qwerty 101 uskey */
-    KC_Q,   KC_W,   KC_E,   KC_R,   KC_T,   KC_Y,   KC_U,   KC_I,   KC_O,   KC_P,   CM_CAOF,
-    A_ALT,  KC_S,   KC_D,   KC_F,   KC_G,   KC_H,   KC_J,   KC_K,   KC_L,   CM_FNSC,
-    Z_SFT,  KC_X,   KC_C,   KC_V,   KC_B,   KC_N,   KC_M,   CM_FNCM,CM_FNQU,SL_SFT,
-    KC_LGUI,KC_LCTL,CM_SFTF,CM_SPFN,CM_CAON,LT_SYS),
+  [UBASE] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
+    KC_ESC, KC_1,   KC_2,   KC_3,   KC_4,   KC_5,   KC_6,   KC_7,   KC_8,   KC_9,   KC_0,   KC_MINS,KC_EQL, KC_BSLS,KC_GRV,
+    KC_TAB, KC_Q,   KC_W,   KC_E,   KC_R,   KC_T,   KC_Y,   KC_U,   KC_I,   KC_O,   KC_P,   SL_ALT,KC_RBRC,KC_BSPC,
+    KC_LCTL,A_ALT,  S_SFT,  KC_D,   KC_F,   KC_G,   KC_H,   KC_J,   KC_K,   L_SFT,  CM_FNSC,CM_UHNZ,KC_ENT,
+    KC_LSFT,KC_Z,   KC_X,   KC_C,   KC_V,   KC_B,   KC_N,   KC_M,   CM_FNCM,CM_FNQU,KC_SLSH,KC_RSFT,LT_SYS,
+    KC_LGUI,KC_LALT,CM_SPFN,KC_RALT,KC_RGUI),
 
-  [JSYM] = LAYOUT(
-    JP_EXLM,JP_AT,  JP_HASH,JP_DLR, JP_PERC,_______,_______,_______,_______,_______,_______,
-    JP_UNDS,JP_PLUS,JP_EQL ,JP_ASTR,JP_CIRC,_______,_______,_______,_______,_______,
-    JP_BSLS,JP_AMPR,JP_PIPE,JP_TILD,JP_GRV, _______,_______,_______,_______,_______,
-    _______,_______,_______,_______,_______,_______),
+  [JSYM] = LAYOUT_60_hhkb(
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,JP_EXLM,JP_AT,  JP_HASH,JP_DLR, JP_PERC,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,JP_UNDS,JP_PLUS,JP_EQL ,JP_ASTR,JP_CIRC,_______,_______,_______,_______,_______,_______,_______,
+    _______,JP_BSLS,JP_AMPR,JP_PIPE,JP_TILD,JP_GRV, _______,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______),
 
-  [USYM] = LAYOUT( /* Qwerty 101 uskey */
-    KC_EXLM,KC_AT,  KC_HASH,KC_DLR, KC_PERC,_______,_______,_______,_______,_______,_______,
-    KC_UNDS,KC_PLUS,KC_EQL, KC_ASTR,KC_CIRC,_______,_______,_______,_______,_______,
-    KC_BSLS,KC_AMPR,KC_PIPE,KC_TILD,KC_GRV, _______,_______,_______,_______,_______,
-    _______,_______,_______,_______,_______,_______),
+  [USYM] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,KC_EXLM,KC_AT,  KC_HASH,KC_DLR, KC_PERC,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,KC_UNDS,KC_PLUS,KC_EQL, KC_ASTR,KC_CIRC,_______,_______,_______,_______,_______,_______,_______,
+    _______,KC_BSLS,KC_AMPR,KC_PIPE,KC_TILD,KC_GRV, _______,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______),
 
-  [JSYM2] = LAYOUT(
-    _______,JP_LPRN,JP_RPRN,JP_LBRC,JP_RBRC,_______,_______,_______,_______,_______,_______,
-    JP_QUOT,JP_DQUO,JP_MINS,JP_LCBR,JP_RCBR,CM_SF10,_______,_______,_______,_______,
-    JP_QUES,JP_COLN,JP_LABK,JP_RABK,JP_SCLN,_______,_______,_______,_______,_______,
-    _______,_______,_______,_______,_______,_______),
+  [JSYM2] = LAYOUT_60_hhkb(
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,_______,JP_LPRN,JP_RPRN,JP_LBRC,JP_RBRC,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,JP_QUOT,JP_DQUO,JP_MINS,JP_LCBR,JP_RCBR,CM_SF10,CM_CAPS,CM_JHNZ,_______,_______,_______,_______,
+    _______,JP_QUES,JP_COLN,JP_LABK,JP_RABK,JP_SCLN,_______,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______),
 
-  [USYM2] = LAYOUT( /* Qwerty 101 uskey */
-    _______,KC_LPRN,KC_RPRN,KC_LBRC,KC_RBRC,_______,_______,_______,_______,_______,_______,
-    KC_QUOT,KC_DQUO,KC_MINS,KC_LCBR,KC_RCBR,CM_SF10,_______,_______,_______,_______,
-    KC_QUES,KC_COLN,KC_LABK,KC_RABK,KC_SCLN,_______,_______,_______,_______,_______,
-    _______,_______,_______,_______,_______,_______),
+  [USYM2] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,_______,KC_LPRN,KC_RPRN,KC_LBRC,KC_RBRC,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,KC_QUOT,KC_DQUO,KC_MINS,KC_LCBR,KC_RCBR,CM_SF10,CM_CAPS,CM_UHNZ,_______,_______,_______,_______,
+    _______,KC_QUES,KC_COLN,KC_LABK,KC_RABK,KC_SCLN,_______,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______),
 
-  //[JSYM3] = LAYOUT(
-  //  JP_EXLM,JP_AT,  JP_HASH,JP_DLR, JP_PERC,_______,JP_SCLN,JP_LPRN,JP_RPRN,JP_MINS,_______,
-  //  JP_UNDS,JP_PLUS,JP_EQL, JP_ASTR,JP_CIRC,JP_LCBR,JP_RCBR,JP_LBRC,JP_RBRC,JP_COLN,
-  //  JP_BSLS,JP_AMPR,JP_PIPE,JP_TILD,JP_GRV, JP_QUOT,JP_DQUO,JP_LABK,JP_RABK,JP_QUES,
-  //  _______,_______,_______,_______,_______,_______),
+  [JSPFN] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,CM_ALCT,CM_ALT4,LT_EXCL,SW_ATAB,CM_WSCS,CM_STAB,KC_HOME,KC_UP,  KC_END, KC_TAB, _______,_______,_______,
+    _______,KC_LALT,KC_LSFT,KC_DEL, MO_HYPS,KC_LGUI,KC_BSPC,KC_LEFT,KC_DOWN,KC_RGHT,KC_ENT, _______,_______,
+    _______,KC_1   ,KC_2   ,KC_3   ,KC_4   ,KC_5   ,KC_6   ,KC_7   ,KC_8   ,KC_9   ,KC_0   ,_______,_______,
+    _______,_______,_______,_______,_______),
 
-  [JSPFN] = LAYOUT( /* Qwerty 101 uskey */
-    CM_ALCT,CM_ALT4,LT_EXCL,SW_ATAB,CM_WSCS,CM_STAB,KC_HOME,KC_UP,  KC_END, KC_TAB, _______,
-    KC_LALT,KC_LSFT,KC_DEL, MO_HYPS,KC_LGUI,KC_BSPC,KC_LEFT,KC_DOWN,KC_RGHT,KC_ENT,
-    KC_1   ,KC_2   ,KC_3   ,KC_4   ,KC_5   ,KC_6   ,KC_7   ,KC_8   ,KC_9   ,KC_0  ,
-    _______,_______,_______,_______,_______,_______),
+  [USPFN] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,CM_ALCT,CM_ALT4,LT_EXCL,SW_ATAB,CM_WSCS,CM_STAB,KC_HOME,KC_UP,  KC_END, KC_TAB, _______,_______,_______,
+    _______,KC_LALT,KC_LSFT,KC_DEL, MO_HYPS,KC_LGUI,KC_BSPC,KC_LEFT,KC_DOWN,KC_RGHT,KC_ENT, _______,_______,
+    _______,KC_1   ,KC_2   ,KC_3   ,KC_4   ,KC_5   ,KC_6   ,KC_7   ,KC_8   ,KC_9   ,KC_0   ,_______,_______,
+    _______,_______,_______,_______,_______),
 
-  [USPFN] = LAYOUT( /* Qwerty 101 uskey */
-    CM_ALCT,CM_ALT4,LT_EXCL,SW_ATAB,CM_WSCS,CM_STAB,KC_HOME,KC_UP,  KC_END, KC_TAB, _______,
-    KC_LALT,KC_LSFT,KC_DEL, MO_HYPS,KC_LGUI,KC_BSPC,KC_LEFT,KC_DOWN,KC_RGHT,KC_ENT,
-    KC_1   ,KC_2   ,KC_3   ,KC_4   ,KC_5   ,KC_6   ,KC_7   ,KC_8   ,KC_9   ,KC_0  ,
-    _______,_______,_______,_______,_______,_______),
+  [UFN] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,KC_F1,  KC_F2,  KC_F3,  KC_F4,  KC_F5  ,_______,_______,_______,_______,_______,_______,_______,
+    _______,KC_F6,  KC_F7,  KC_F8,  KC_F9,  KC_F10, KC_F11, KC_F12 ,_______,_______,KC_LSFT,_______,_______,
+    _______,_______,_______,_______,_______),
 
-  [UFN] = LAYOUT( /* Qwerty 101 uskey */
-    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
-    KC_F1,  KC_F2,  KC_F3,  KC_F4,  KC_F5  ,_______,_______,_______,_______,_______,
-    KC_F6,  KC_F7,  KC_F8,  KC_F9,  KC_F10, KC_F11, KC_F12 ,_______,_______,KC_LSFT,
-    _______,_______,_______,_______,_______,_______),
+  [JFN] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,KC_F1,  KC_F2,  KC_F3,  KC_F4,  KC_F5  ,_______,_______,_______,_______,_______,_______,_______,
+    _______,KC_F6,  KC_F7,  KC_F8,  KC_F9,  KC_F10, KC_F11, KC_F12 ,_______,_______,KC_LSFT,_______,_______,
+    _______,_______,_______,_______,_______),
 
-  [JFN] = LAYOUT( /* Qwerty 101 uskey */
-    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
-    KC_F1,  KC_F2,  KC_F3,  KC_F4,  KC_F5  ,_______,_______,_______,_______,_______,
-    KC_F6,  KC_F7,  KC_F8,  KC_F9,  KC_F10, KC_F11, KC_F12 ,_______,_______,KC_LSFT,
-    _______,_______,_______,_______,_______,_______),
+  [EXCL] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______,_______,_______,CM_CHOM,KC_PGUP,CM_CEND,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______,_______,_______,CM_CPGU,KC_PGDN,CM_CPGD,_______,_______,_______,
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______),
 
-  [EXCL] = LAYOUT( /* Qwerty 101 uskey */
-    _______,_______,_______,_______,_______,_______,CM_CHOM,KC_PGUP,CM_CEND,_______,_______,
-    _______,_______,_______,_______,_______,_______,CM_CPGU,KC_PGDN,CM_CPGD,_______,
-    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
-    _______,_______,_______,_______,_______,_______),
+  [HYPE] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______,_______,_______,_______,CM_UP,  _______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______,_______,_______,CM_LEFT,CM_DOWN,CM_RGHT,_______,_______,_______,
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______),
 
-  [HYPE] = LAYOUT( /* Qwerty 101 uskey */
-    _______,_______,_______,_______,_______,_______,_______,CM_UP,  _______,_______,_______,
-    _______,_______,_______,_______,_______,_______,CM_LEFT,CM_DOWN,CM_RGHT,_______,
-    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
-    _______,_______,_______,_______,_______,_______),
+  [HHKB] = LAYOUT_60_hhkb(
+    KC_PWR, KC_F1, KC_F2, KC_F3, KC_F4, KC_F5, KC_F6, KC_F7, KC_F8, KC_F9, KC_F10, KC_F11, KC_F12, KC_INS, KC_DEL,
+    KC_CAPS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_PSCR, KC_SCRL, KC_PAUS, KC_UP, KC_TRNS, KC_BSPC,
+    KC_TRNS, KC_VOLD, KC_VOLU, KC_MUTE, KC_TRNS, KC_TRNS, KC_PAST, KC_PSLS, KC_HOME, KC_PGUP, KC_LEFT, KC_RGHT, KC_PENT,
+    KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_PPLS, KC_PMNS, KC_END, KC_PGDN, KC_DOWN, KC_TRNS, KC_TRNS,
+    KC_TRNS, KC_TRNS, KC_TRNS, DF_JBAS,DF_UBAS),
 
-//  [HHKB] = LAYOUT(
-//    KC_PWR, KC_F1, KC_F2, KC_F3, KC_F4, KC_F5, KC_F6, KC_F7, KC_F8, KC_F9, KC_F10, KC_F11, KC_F12, KC_INS, KC_DEL,
-//    KC_CAPS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_PSCR, KC_SCRL, KC_PAUS, KC_UP, KC_TRNS, KC_BSPC,
-//    KC_TRNS, KC_VOLD, KC_VOLU, KC_MUTE, KC_TRNS, KC_TRNS, KC_PAST, KC_PSLS, KC_HOME, KC_PGUP, KC_LEFT, KC_RGHT, KC_PENT,
-//    KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_PPLS, KC_PMNS, KC_END, KC_PGDN, KC_DOWN, KC_TRNS, KC_TRNS,
-//    KC_TRNS, KC_TRNS, KC_TRNS, DF_JBAS,DF_UBAS),
-
-  [ALTTAB] = LAYOUT( /* Qwerty 101 uskey */
-    CM_STAB,_______,_______,KC_TAB, _______,_______,_______,KC_UP,  _______,_______,_______,
-    _______,_______,_______,_______,_______,_______,KC_LEFT,KC_DOWN,KC_RGHT,_______,
-    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
-    _______,_______,_______,_______,_______,_______),
-
-  [CONFIG] = LAYOUT( /* Qwerty 101 uskey */
-    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,QK_BOOT,
-    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
-    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
-    _______,_______,_______,DF_JBAS,DF_UBAS,_______)
-
+  [ALTTAB] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,CM_STAB,_______,_______,KC_TAB, _______,_______,_______,KC_UP,  _______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______,_______,_______,KC_LEFT,KC_DOWN,KC_RGHT,_______,_______,_______,
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______)
 };
 
 const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
-    LAYOUT(
-        'L','L','L','L','L','R','R','R','R','R','R',
-        'L','L','L','L','L','R','R','R','R','R',
-        'L','L','L','L','L','R','R','R','R','R',
-        'L','L','L','R','R','R'
+    LAYOUT_60_hhkb(
+        'L','L','L','L','L','L','L','R','R','R','R','R','R','R','R',
+        'L','L','L','L','L','L','R','R','R','R','R','R','R','R',
+        'L','L','L','L','L','L','R','R','R','R','R','R','R',
+        'L','L','L','L','L','L','R','R','R','R','R','R','R',
+        'L','L','R','R','R'
     );
 
 uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t* record,
@@ -243,8 +242,6 @@ bool is_flow_tap_key(uint16_t keycode) {
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case SL_SFT:
-        case Z_SFT:
         case S_SFT:
         case L_SFT:
             return TAPPING_TERM-40;
@@ -259,7 +256,6 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
             return false;
     }
 }
-
 
 static bool process_jp_symbols_impl(uint16_t keycode, bool pressed) {
     if (!pressed) {
@@ -306,9 +302,6 @@ void tap_code16jp(uint16_t keycode) {
 static bool spfn_pressed = false;
 static uint16_t spfn_pressed_time = 0;
 
-static bool sftf_pressed = false;
-static uint16_t sftf_pressed_time = 0;
-
 static bool fnqu_pressed = false;
 static uint16_t fnqu_pressed_time = 0;
 
@@ -342,32 +335,6 @@ static uint16_t mod_switch_keycode = false;
 //        *modifier_pressed = false;
 //      }
 //}
-static void user_shift_func(keyrecord_t *record, bool *modifier_pressed, uint16_t *modifier_pressed_time, bool tapping_term_disable) {
-      if (record->event.pressed) {
-         *modifier_pressed_time = record->event.time;
-         *modifier_pressed = true;
-         register_mods(MOD_BIT(KC_LSFT));
-      } else {
-        unregister_mods(MOD_BIT(KC_LSFT));
-        if (*modifier_pressed && (tapping_term_disable || (timer_elapsed(*modifier_pressed_time) < TAPPING_TERM))) {
-           if (get_highest_layer(default_layer_state)==JBASE){
-               SEND_STRING(SS_LALT("`"));
-           }else{
-               SEND_STRING(SS_LALT("`"));
-               //VM利用時はカラビナでALTGRAVに置き換えて解釈
-               //(VM利用時はカラビナでCNTLがまずcontrol->command command->controlとなる
-               //　つぎにーカラビナでCommand+SPAVEであればALT+GRAVに変換）
-           }
-           //cpas lockがonだったらCAPSLOCKをOFFにする
-           if (host_keyboard_led_state().caps_lock) {
-             SEND_STRING(SS_DOWN(X_LSFT));
-             SEND_STRING(SS_TAP(X_CAPS));
-             SEND_STRING(SS_UP(X_LSFT));
-           }
-        }
-        *modifier_pressed = false;
-      }
-}
 
 //ホールド中のキーをMODキーに差し替える。
 //layerの指定が0だったらデフォルトレイヤーでMODキーを動作させる
@@ -462,17 +429,12 @@ static void user_lt(keyrecord_t *record,
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   if (record->event.pressed) {
     // reset the user_lt & user_tt flags
-    if (keycode != CM_SFTF)  {sftf_pressed = false;}
     if (keycode != CM_SPFN)  {spfn_pressed = false;}
     if (keycode != CM_FNSC)  {fnsc_pressed = false;}
     if (keycode != CM_FNQU)  {fnqu_pressed = false;}
     if (keycode != CM_FNCM)  {fncm_pressed = false;}
   }
   switch (keycode) {
-    case CM_SFTF:
-        user_shift_func(record,&sftf_pressed,&sftf_pressed_time,false);
-      return false;
-      break;
     case CM_SPFN:
       if (get_highest_layer(default_layer_state)==JBASE){
         user_lt(record,JSPFN,KC_SPC,&spfn_pressed,&spfn_pressed_time,false,&mod_switch_keycode);
@@ -505,14 +467,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
       return false;
       break;
-    case CM_CAON:
+    case CM_CAPS:
       if(record->event.pressed){
-          if (!host_keyboard_led_state().caps_lock) {
-              //then caps off の時caps on
-            SEND_STRING(SS_DOWN(X_LSFT));
-            SEND_STRING(SS_TAP(X_CAPS));
-            SEND_STRING(SS_UP(X_LSFT));
-          }
+          SEND_STRING(SS_DOWN(X_LSFT));
+          SEND_STRING(SS_TAP(X_CAPS));
+          SEND_STRING(SS_UP(X_LSFT));
+      }
+      else {
+        //release
       }
       return false;
       break;
@@ -630,7 +592,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     default:
       if (record->event.pressed) {
         // reset the flag
-        sftf_pressed = false;
         spfn_pressed = false;
         fnqu_pressed = false;
         fnsc_pressed = false;
@@ -648,4 +609,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 
     return true;
+}
+
+void keyboard_post_init_user(void) {
+        /* Customise these values to desired behaviour */
+        debug_enable=true;
+        /* debug_matrix=true; */
+        /* debug_keyboard=true; */
+        /* debug_mouse=true; */
 }

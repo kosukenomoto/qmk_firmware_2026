@@ -8,28 +8,41 @@
 
 #define JBASE   0
 #define UBASE   1
-#define JSYM    2
-#define USYM    3
-#define JSYM2   4
-#define USYM2   5
-//#define JSYM3   6
-//#define USYM3   7
-#define JSPFN   8
-#define USPFN   9
-#define UFN     10
-#define JFN     11
-#define EXCL    12
-#define HYPE    13
+#define NUM     2
+#define ARW1    3
+#define ARW2    4
+#define EXCL    5
+#define JSYM    6
+#define USYM    7
+#define JSYM2   8
+#define USYM2   9
+#define JQFN    10
+#define UQFN    11
+#define FUNC    12
 #define ALTTAB  14
-#define CONFIG  15
 
-#define KC_MSDN    KC_MS_DOWN
-#define KC_MSUP    KC_MS_UP
-#define KC_MSLF    KC_MS_LEFT
-#define KC_MSRT    KC_MS_RIGHT
+//#define JSPFN   99
+//#define USPFN   98
 
-#define LT_EXCL LT(EXCL,KC_ESC)
-#define LT_SYS  LT(CONFIG,KC_PSCR)
+#define SP_SFT  LSFT_T(KC_SPC)
+#define F_CTL   LCTL_T(KC_F)
+#define J_CTL   RCTL_T(KC_J)
+#define D_ALT   LALT_T(KC_D)
+#define K_ALT   RALT_T(KC_K)
+#define G_GUI   LGUI_T(KC_G)
+#define H_GUI   RGUI_T(KC_H)
+#define LT_ARW1 LT(ARW1,KC_A)
+#define LT_ARW2 LT(ARW2,KC_S)
+#define LT_EXCL LT(EXCL,KC_E)
+#define LT_NUM  LT(NUM,KC_DOT)
+#define LT_FUNC LT(FUNC,KC_BSPC)
+#define TD_Z    TD(Z_CTL_SFT)
+
+//#define KC_MSDN    KC_MS_DOWN
+//#define KC_MSUP    KC_MS_UP
+//#define KC_MSLF    KC_MS_LEFT
+//#define KC_MSRT    KC_MS_RIGHT
+//#define LT_EXCL LT(EXCL,KC_ESC)
 //#define J_JSYM  LT(JSYM3,KC_J)
 //#define F_JSYM  LT(JSYM3,KC_F)
 #define MO_HYPS MO(HYPE)
@@ -45,6 +58,7 @@
 #define L_SFT RSFT_T(KC_L)
 #define Z_SFT LSFT_T(KC_Z)
 #define A_ALT LALT_T(KC_A)
+
 
 #define CM_CPGU C(KC_PGUP)
 #define CM_CPGD C(KC_PGDN)
@@ -74,19 +88,90 @@
 //(VM利用時はカラビナでCNTLがまずcontrol->command command->controlとなる
 //　つぎにーカラビナでCommand+SPAVEであればALT+GRAVに変換）
 
+// 状態を定義するための型
+typedef struct {
+    bool is_press_action;
+    uint8_t state;
+} tap;
+
+enum {
+    SINGLE_TAP = 1,
+    SINGLE_HOLD = 2,
+    DOUBLE_TAP = 3,
+    DOUBLE_HOLD = 4,
+};
+
+// Tap DanceのID定義
+enum {
+    Z_CTL_SFT = 0
+};
+
+// 現在の状態を判定する関数
+//uint8_t cur_dance(tap_dance_state_t *state) {
+//    if (state->count == 1) {
+//        if (state->interrupted || !state->pressed) return SINGLE_TAP;
+//        else return SINGLE_HOLD;
+//    } else if (state->count == 2) {
+//        if (state->interrupted || !state->pressed) return DOUBLE_TAP;
+//        else return DOUBLE_HOLD;
+//    }
+//    return 5; // 3回以上のタップ（必要なら定義）
+//}
+uint8_t cur_dance(tap_dance_state_t *state) {
+    if (state->count == 1) {
+        // 割り込みがあっても、押しっぱなしならSINGLE_HOLD(Shift)を優先
+        //if (state->pressed) return SINGLE_HOLD;
+        //else return SINGLE_TAP;
+        return SINGLE_TAP;
+    } else if (state->count == 2) {
+        // ダブルタップ中の割り込みでも、押しっぱなしならDOUBLE_HOLD(Control)を優先
+        if (state->pressed) return DOUBLE_HOLD;
+        else return DOUBLE_TAP;
+    }
+    return 5;
+}
+static tap ztap_state;
+
+// 各アクション実行時の処理
+void z_finished(tap_dance_state_t *state, void *user_data) {
+    ztap_state.state = cur_dance(state);
+    switch (ztap_state.state) {
+        case SINGLE_TAP: register_code(KC_Z); break;
+        //case SINGLE_HOLD: register_mods(MOD_BIT(KC_LSFT)); break;
+        case DOUBLE_TAP: register_code(KC_Z); register_code(KC_Z); break; // ダブルタップでzを2回出す場合
+        case DOUBLE_HOLD: register_mods(MOD_BIT(KC_LCTL)); break;
+    }
+}
+
+// キーを離した時の処理
+void z_reset(tap_dance_state_t *state, void *user_data) {
+    switch (ztap_state.state) {
+        case SINGLE_TAP: unregister_code(KC_Z); break;
+        //case SINGLE_HOLD: unregister_mods(MOD_BIT(KC_LSFT)); break;
+        case DOUBLE_TAP: unregister_code(KC_Z); break;
+        case DOUBLE_HOLD: unregister_mods(MOD_BIT(KC_LCTL)); break;
+    }
+    ztap_state.state = 0;
+}
+
+// Tap Danceの登録
+tap_dance_action_t tap_dance_actions[] = {
+    [Z_CTL_SFT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, z_finished, z_reset)
+};
+
+
 enum custom_keycodes {
   CM_LEFT = SAFE_RANGE,
   CM_RGHT,
   CM_UP,
   CM_DOWN,
-  CM_DELE,
-  CM_BSPC,
-  CM_SPFN,
+  CM_QFN,
+  CM_NUM,
   CM_FNSC,
-  CM_FNQU,
+  CM_FUNC,
   CM_FNCM,
+  CM_IME,
   CM_CAON,
-  CM_CAOF,
   CM_ALCT,
   CM_SFTF,
   SW_LSFT,
@@ -108,16 +193,40 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 //JP for Windows(jp layout keyboard setting)
 
   [JBASE] = LAYOUT( /* Qwerty 106 jpkey */
-    KC_Q,   KC_W,   KC_E,   KC_R,   KC_T,   KC_Y,   KC_U,   KC_I,   KC_O,   KC_P,   CM_CAOF,
-    A_ALT,  KC_S,   KC_D,   KC_F,   KC_G,   KC_H,   KC_J,   KC_K,   KC_L,  CM_FNSC,
-    Z_SFT,  KC_X,   KC_C,   KC_V,   KC_B,   KC_N,   KC_M,   CM_FNCM,CM_FNQU,SL_SFT,
-    KC_LGUI,KC_LCTL,CM_SFTF,CM_SPFN,CM_CAON,LT_SYS),
+    CM_QFN, KC_W,   LT_EXCL,KC_R,   KC_T,   KC_Y,   KC_U,   KC_I,   KC_O,   KC_P,   LT_FUNC,
+    LT_ARW1,LT_ARW2,D_ALT,  F_CTL,  G_GUI,  H_GUI,  J_CTL,  K_ALT,  KC_L,   CM_NUM,
+    TD_Z,   KC_X,   KC_C,   KC_V,   KC_B,   KC_N,   KC_M,   CM_FNCM,CM_FNSC,SL_SFT,
+    KC_LCTL,SP_SFT,SP_SFT, SP_SFT, SP_SFT,SP_SFT),
 
   [UBASE] = LAYOUT( /* Qwerty 101 uskey */
-    KC_Q,   KC_W,   KC_E,   KC_R,   KC_T,   KC_Y,   KC_U,   KC_I,   KC_O,   KC_P,   CM_CAOF,
-    A_ALT,  KC_S,   KC_D,   KC_F,   KC_G,   KC_H,   KC_J,   KC_K,   KC_L,   CM_FNSC,
-    Z_SFT,  KC_X,   KC_C,   KC_V,   KC_B,   KC_N,   KC_M,   CM_FNCM,CM_FNQU,SL_SFT,
-    KC_LGUI,KC_LCTL,CM_SFTF,CM_SPFN,CM_CAON,LT_SYS),
+    CM_QFN, KC_W,   LT_EXCL,KC_R,   KC_T,   KC_Y,   KC_U,   KC_I,   KC_O,   KC_P,   LT_FUNC,
+    LT_ARW1,LT_ARW2,D_ALT,  F_CTL,  G_GUI,  H_GUI,  J_CTL,  K_ALT,  KC_L,   CM_NUM,
+    TD_Z,   KC_X,   KC_C,   KC_V,   KC_B,   KC_N,   KC_M,   CM_FNCM,CM_FNSC,SL_SFT,
+    KC_LCTL,SP_SFT,SP_SFT, SP_SFT, SP_SFT,SP_SFT),
+
+  [NUM] = LAYOUT( /* Qwerty 101 uskey */
+    _______,KC_7,   KC_8,   KC_9,   _______,_______,_______,_______,DF_JBAS,DF_UBAS,QK_BOOT,
+    KC_SLSH,KC_4,   KC_5,   KC_6,   KC_DOT ,_______,KC_MINS,CM_IME ,CM_CAON,_______,
+    KC_0,   KC_1,   KC_2,   KC_3,   _______,_______,_______,SW_LSFT,_______,_______,
+    _______,_______,_______,_______,_______,_______),
+
+  [ARW1] = LAYOUT( /* Qwerty 101 uskey */
+    _______,_______,_______,_______,_______,CM_STAB,KC_HOME,KC_UP,  KC_END, KC_TAB,_______,
+    _______,_______,_______,_______,_______,KC_BSPC,KC_LEFT,KC_DOWN,KC_RGHT,KC_ENT,
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,_______,KC_LSFT,KC_LSFT,_______,_______),
+
+  [ARW2] = LAYOUT( /* Qwerty 101 uskey */
+    _______,_______,_______,_______,_______,_______,_______,CM_UP,  _______,_______,_______,
+    _______,_______,_______,_______,_______,_______,CM_LEFT,CM_DOWN,CM_RGHT,_______,
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______,_______),
+
+  [EXCL] = LAYOUT( /* Qwerty 101 uskey */
+    _______,_______,_______,_______,_______,_______,CM_CHOM,KC_PGUP,CM_CEND,_______,_______,
+    _______,_______,_______,_______,_______,_______,CM_CPGU,KC_PGDN,CM_CPGD,_______,
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______,_______),
 
   [JSYM] = LAYOUT(
     JP_EXLM,JP_AT,  JP_HASH,JP_DLR, JP_PERC,_______,_______,_______,_______,_______,_______,
@@ -143,47 +252,48 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_QUES,KC_COLN,KC_LABK,KC_RABK,KC_SCLN,_______,_______,_______,_______,_______,
     _______,_______,_______,_______,_______,_______),
 
+  [JQFN] = LAYOUT( /* Qwerty 101 uskey */
+    _______,CM_ALT4,KC_ESC, SW_ATAB,CM_WSCS,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,CM_ALCT,KC_DEL, _______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______,_______),
+  [UQFN] = LAYOUT( /* Qwerty 101 uskey */
+    _______,CM_ALT4,KC_ESC, SW_ATAB,CM_WSCS,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,CM_ALCT,KC_DEL, _______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______,_______),
+
+  [FUNC] = LAYOUT( /* Qwerty 101 uskey */
+    KC_F1,  KC_F2,  KC_F3,  KC_F4,  KC_F5  ,KC_F6,  KC_F7,  KC_F8,  KC_F9,  KC_F10,_______,
+    KC_F11, KC_F12 ,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______,_______),
+
+  [ALTTAB] = LAYOUT( /* Qwerty 101 uskey */
+    _______,_______,_______,KC_TAB, _______,_______,_______,KC_UP,  _______,_______,_______,
+    _______,_______,_______,CM_STAB,_______,_______,KC_LEFT,KC_DOWN,KC_RGHT,_______,
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______,_______),
+
+};
+
   //[JSYM3] = LAYOUT(
   //  JP_EXLM,JP_AT,  JP_HASH,JP_DLR, JP_PERC,_______,JP_SCLN,JP_LPRN,JP_RPRN,JP_MINS,_______,
   //  JP_UNDS,JP_PLUS,JP_EQL, JP_ASTR,JP_CIRC,JP_LCBR,JP_RCBR,JP_LBRC,JP_RBRC,JP_COLN,
   //  JP_BSLS,JP_AMPR,JP_PIPE,JP_TILD,JP_GRV, JP_QUOT,JP_DQUO,JP_LABK,JP_RABK,JP_QUES,
   //  _______,_______,_______,_______,_______,_______),
 
-  [JSPFN] = LAYOUT( /* Qwerty 101 uskey */
-    CM_ALCT,CM_ALT4,LT_EXCL,SW_ATAB,CM_WSCS,CM_STAB,KC_HOME,KC_UP,  KC_END, KC_TAB, _______,
-    KC_LALT,KC_LSFT,KC_DEL, MO_HYPS,KC_LGUI,KC_BSPC,KC_LEFT,KC_DOWN,KC_RGHT,KC_ENT,
-    KC_1   ,KC_2   ,KC_3   ,KC_4   ,KC_5   ,KC_6   ,KC_7   ,KC_8   ,KC_9   ,KC_0  ,
-    _______,_______,_______,_______,_______,_______),
+  //[JSPFN] = LAYOUT( /* Qwerty 101 uskey */
+  //  CM_ALCT,CM_ALT4,LT_EXCL,SW_ATAB,CM_WSCS,CM_STAB,KC_HOME,KC_UP,  KC_END, KC_TAB, _______,
+  //  KC_LALT,KC_LSFT,KC_DEL, MO_HYPS,KC_LGUI,KC_BSPC,KC_LEFT,KC_DOWN,KC_RGHT,KC_ENT,
+  //  KC_1   ,KC_2   ,KC_3   ,KC_4   ,KC_5   ,KC_6   ,KC_7   ,KC_8   ,KC_9   ,KC_0  ,
+  //  _______,_______,_______,_______,_______,_______),
 
-  [USPFN] = LAYOUT( /* Qwerty 101 uskey */
-    CM_ALCT,CM_ALT4,LT_EXCL,SW_ATAB,CM_WSCS,CM_STAB,KC_HOME,KC_UP,  KC_END, KC_TAB, _______,
-    KC_LALT,KC_LSFT,KC_DEL, MO_HYPS,KC_LGUI,KC_BSPC,KC_LEFT,KC_DOWN,KC_RGHT,KC_ENT,
-    KC_1   ,KC_2   ,KC_3   ,KC_4   ,KC_5   ,KC_6   ,KC_7   ,KC_8   ,KC_9   ,KC_0  ,
-    _______,_______,_______,_______,_______,_______),
-
-  [UFN] = LAYOUT( /* Qwerty 101 uskey */
-    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
-    KC_F1,  KC_F2,  KC_F3,  KC_F4,  KC_F5  ,_______,_______,_______,_______,_______,
-    KC_F6,  KC_F7,  KC_F8,  KC_F9,  KC_F10, KC_F11, KC_F12 ,_______,_______,KC_LSFT,
-    _______,_______,_______,_______,_______,_______),
-
-  [JFN] = LAYOUT( /* Qwerty 101 uskey */
-    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
-    KC_F1,  KC_F2,  KC_F3,  KC_F4,  KC_F5  ,_______,_______,_______,_______,_______,
-    KC_F6,  KC_F7,  KC_F8,  KC_F9,  KC_F10, KC_F11, KC_F12 ,_______,_______,KC_LSFT,
-    _______,_______,_______,_______,_______,_______),
-
-  [EXCL] = LAYOUT( /* Qwerty 101 uskey */
-    _______,_______,_______,_______,_______,_______,CM_CHOM,KC_PGUP,CM_CEND,_______,_______,
-    _______,_______,_______,_______,_______,_______,CM_CPGU,KC_PGDN,CM_CPGD,_______,
-    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
-    _______,_______,_______,_______,_______,_______),
-
-  [HYPE] = LAYOUT( /* Qwerty 101 uskey */
-    _______,_______,_______,_______,_______,_______,_______,CM_UP,  _______,_______,_______,
-    _______,_______,_______,_______,_______,_______,CM_LEFT,CM_DOWN,CM_RGHT,_______,
-    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
-    _______,_______,_______,_______,_______,_______),
+  //[USPFN] = LAYOUT( /* Qwerty 101 uskey */
+  //  CM_ALCT,CM_ALT4,LT_EXCL,SW_ATAB,CM_WSCS,CM_STAB,KC_HOME,KC_UP,  KC_END, KC_TAB, _______,
+  //  KC_LALT,KC_LSFT,KC_DEL, MO_HYPS,KC_LGUI,KC_BSPC,KC_LEFT,KC_DOWN,KC_RGHT,KC_ENT,
+  //  KC_1   ,KC_2   ,KC_3   ,KC_4   ,KC_5   ,KC_6   ,KC_7   ,KC_8   ,KC_9   ,KC_0  ,
+  //  _______,_______,_______,_______,_______,_______),
 
 //  [HHKB] = LAYOUT(
 //    KC_PWR, KC_F1, KC_F2, KC_F3, KC_F4, KC_F5, KC_F6, KC_F7, KC_F8, KC_F9, KC_F10, KC_F11, KC_F12, KC_INS, KC_DEL,
@@ -192,32 +302,22 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 //    KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_PPLS, KC_PMNS, KC_END, KC_PGDN, KC_DOWN, KC_TRNS, KC_TRNS,
 //    KC_TRNS, KC_TRNS, KC_TRNS, DF_JBAS,DF_UBAS),
 
-  [ALTTAB] = LAYOUT( /* Qwerty 101 uskey */
-    CM_STAB,_______,_______,KC_TAB, _______,_______,_______,KC_UP,  _______,_______,_______,
-    _______,_______,_______,_______,_______,_______,KC_LEFT,KC_DOWN,KC_RGHT,_______,
-    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
-    _______,_______,_______,_______,_______,_______),
-
-  [CONFIG] = LAYOUT( /* Qwerty 101 uskey */
-    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,QK_BOOT,
-    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
-    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
-    _______,_______,_______,DF_JBAS,DF_UBAS,_______)
-
-};
-
 const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
     LAYOUT(
         'L','L','L','L','L','R','R','R','R','R','R',
         'L','L','L','L','L','R','R','R','R','R',
         'L','L','L','L','L','R','R','R','R','R',
-        'L','L','L','R','R','R'
+        'L','L','*','*','R','R'
     );
 
 uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t* record,
                            uint16_t prev_keycode) {
     if (is_flow_tap_key(keycode) && is_flow_tap_key(prev_keycode)) {
         switch (keycode) {
+            case SP_SFT:
+                return 0;
+            case LT_ARW1:
+                return FLOW_TAP_TERM - 20;
             default:
               return FLOW_TAP_TERM;  // Longer timeout otherwise.
         }
@@ -243,11 +343,6 @@ bool is_flow_tap_key(uint16_t keycode) {
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case SL_SFT:
-        case Z_SFT:
-        case S_SFT:
-        case L_SFT:
-            return TAPPING_TERM-40;
         default:
             return TAPPING_TERM;
     }
@@ -255,11 +350,20 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 
 bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
+        case SP_SFT:
+            return true;
         default:
             return false;
     }
 }
-
+uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case SP_SFT:
+            return 0;
+        default:
+            return QUICK_TAP_TERM;
+    }
+}
 
 static bool process_jp_symbols_impl(uint16_t keycode, bool pressed) {
     if (!pressed) {
@@ -303,6 +407,9 @@ void tap_code16jp(uint16_t keycode) {
 }
 
 //SPFN ============================================
+static bool num_pressed = false;
+static uint16_t num_pressed_time = 0;
+
 static bool spfn_pressed = false;
 static uint16_t spfn_pressed_time = 0;
 
@@ -463,9 +570,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   if (record->event.pressed) {
     // reset the user_lt & user_tt flags
     if (keycode != CM_SFTF)  {sftf_pressed = false;}
-    if (keycode != CM_SPFN)  {spfn_pressed = false;}
+    if (keycode != CM_QFN)   {spfn_pressed = false;}
+    if (keycode != CM_NUM)   {num_pressed = false;}
     if (keycode != CM_FNSC)  {fnsc_pressed = false;}
-    if (keycode != CM_FNQU)  {fnqu_pressed = false;}
+    if (keycode != CM_FUNC)  {fnqu_pressed = false;}
     if (keycode != CM_FNCM)  {fncm_pressed = false;}
   }
   switch (keycode) {
@@ -473,27 +581,35 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         user_shift_func(record,&sftf_pressed,&sftf_pressed_time,false);
       return false;
       break;
-    case CM_SPFN:
+    case CM_QFN:
       if (get_highest_layer(default_layer_state)==JBASE){
-        user_lt(record,JSPFN,KC_SPC,&spfn_pressed,&spfn_pressed_time,false,&mod_switch_keycode);
+        user_lt(record,JQFN,KC_Q,&spfn_pressed,&spfn_pressed_time,false,&mod_switch_keycode);
       } else {
-        user_lt(record,USPFN,KC_SPC,&spfn_pressed,&spfn_pressed_time,false,&mod_switch_keycode);
+        user_lt(record,UQFN,KC_Q,&spfn_pressed,&spfn_pressed_time,false,&mod_switch_keycode);
       }
       return false;
       break;
-    case CM_FNQU:
+    case CM_NUM:
       if (get_highest_layer(default_layer_state)==JBASE){
-        user_lt(record,JFN,KC_DOT,&fnqu_pressed,&fnqu_pressed_time,false,&mod_switch_keycode);
+        user_lt(record,NUM,KC_ENT,&num_pressed,&num_pressed_time,false,&mod_switch_keycode);
       } else {
-        user_lt(record,UFN,KC_DOT,&fnqu_pressed,&fnqu_pressed_time,false,&mod_switch_keycode);
+        user_lt(record,NUM,KC_ENT,&num_pressed,&num_pressed_time,false,&mod_switch_keycode);
+      }
+      return false;
+      break;
+    case CM_FUNC:
+      if (get_highest_layer(default_layer_state)==JBASE){
+        user_lt(record,FUNC,KC_MINS,&fnqu_pressed,&fnqu_pressed_time,false,&mod_switch_keycode);
+      } else {
+        user_lt(record,FUNC,KC_MINS,&fnqu_pressed,&fnqu_pressed_time,false,&mod_switch_keycode);
       }
       return false;
       break;
     case CM_FNSC:
       if (get_highest_layer(default_layer_state)==JBASE){
-        user_lt(record,JSYM2,KC_ENT,&fnsc_pressed,&fnsc_pressed_time,false,&mod_switch_keycode);
+        user_lt(record,JSYM2,KC_DOT,&fnsc_pressed,&fnsc_pressed_time,false,&mod_switch_keycode);
       } else {
-        user_lt(record,USYM2,KC_ENT,&fnsc_pressed,&fnsc_pressed_time,false,&mod_switch_keycode);
+        user_lt(record,USYM2,KC_DOT,&fnsc_pressed,&fnsc_pressed_time,false,&mod_switch_keycode);
       }
       return false;
       break;
@@ -502,6 +618,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         user_lt(record,JSYM,KC_COMM,&fncm_pressed,&fncm_pressed_time,false,&mod_switch_keycode);
       } else {
         user_lt(record,USYM,KC_COMM,&fncm_pressed,&fncm_pressed_time,false,&mod_switch_keycode);
+      }
+      return false;
+      break;
+    case CM_IME:
+      if(record->event.pressed){
+          if (host_keyboard_led_state().caps_lock) {
+              //then caps on の時caps off
+            SEND_STRING(SS_DOWN(X_LSFT));
+            SEND_STRING(SS_TAP(X_CAPS));
+            SEND_STRING(SS_UP(X_LSFT));
+          }
+          SEND_STRING(SS_LALT("`"));
       }
       return false;
       break;
@@ -605,33 +733,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         //released
       }
       break;
-    case CM_BSPC:
-      if(record->event.pressed){
-        //pressed
-        tap_code(KC_BSPC);
-        tap_code(KC_BSPC);
-        tap_code(KC_BSPC);
-        tap_code(KC_BSPC);
-      }else{
-        //released
-      }
-      break;
-    case CM_DELE:
-      if(record->event.pressed){
-        //pressed
-        tap_code(KC_DEL);
-        tap_code(KC_DEL);
-        tap_code(KC_DEL);
-        tap_code(KC_DEL);
-      }else{
-        //released
-      }
-      break;
     default:
       if (record->event.pressed) {
         // reset the flag
         sftf_pressed = false;
         spfn_pressed = false;
+        num_pressed = false;
         fnqu_pressed = false;
         fnsc_pressed = false;
         fncm_pressed = false;

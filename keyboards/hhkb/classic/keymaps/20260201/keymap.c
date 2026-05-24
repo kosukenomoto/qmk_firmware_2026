@@ -15,23 +15,30 @@
 #define USYM    3
 #define JSYM2   4
 #define USYM2   5
-#define JSPFN   6
-#define USPFN   7
-#define UFN     8
-#define JFN     9
-#define EXCL    11
-#define HYPE    12
-#define HHKB    13
-#define ALTTAB  14
+#define CURFN   6
+#define JSPFN   7
+#define USPFN   8
+#define UFN     9
+#define JFN     10
+#define EXCL    12
+#define HYPE    13
+#define HHKB    14
+#define ALTTAB  15
 
 #define KC_MSDN    KC_MS_DOWN
 #define KC_MSUP    KC_MS_UP
 #define KC_MSLF    KC_MS_LEFT
 #define KC_MSRT    KC_MS_RIGHT
 
+#define MO_EXCL MO(EXCL)
+#define MO_HYPE MO(HYPE)
 #define LT_EXCL LT(EXCL,KC_ESC)
+#define LT_HYPE LT(HYPE,KC_ESC)
 #define LT_SYS  LT(HHKB,KC_PSCR)
 #define Q_FN    LT(HYPE,KC_Q)
+#define G_FN    LT(JSPFN,KC_G)
+#define F_FN    LT(JSPFN,KC_F)
+#define A_FN    LT(CURFN,KC_A)
 #define MO_HYPS MO(HYPE)
 #define MO_JSM2 MO(JSYM2)
 #define MO_USM2 MO(USYM2)
@@ -47,11 +54,17 @@
 #define X_CTL LCTL_T(KC_X)
 
 #define A_GUI LGUI_T(KC_A)
+#define G_GUI LGUI_T(KC_G)
+#define H_GUI LGUI_T(KC_H)
 #define S_ALT LALT_T(KC_S)
+#define S_SFT LSFT_T(KC_S)
+#define D_ALT LALT_T(KC_D)
 #define D_SFT LSFT_T(KC_D)
 #define F_CTL LCTL_T(KC_F)
 
 #define L_ALT RALT_T(KC_L)
+#define K_ALT RALT_T(KC_K)
+#define L_SFT RSFT_T(KC_L)
 #define K_SFT RSFT_T(KC_K)
 #define J_CTL RCTL_T(KC_J)
 
@@ -118,7 +131,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [JBASE] = LAYOUT_60_hhkb( /* Qwerty 106 jpkey */
     KC_ESC, KC_1,   KC_2,   KC_3,   KC_4,   KC_5,   KC_6,   KC_7,   KC_8,   KC_9,   KC_0,   JP_MINS,JP_EQL, JP_BSLS,JP_GRV,
     KC_TAB, Q_FN,   KC_W,   KC_E,   KC_R,   KC_T,   KC_Y,   KC_U,   KC_I,   KC_O,   KC_P,   SL_ALT,JP_RBRC,KC_BSPC,
-    KC_LCTL,A_GUI,  S_ALT,  D_SFT,  F_CTL,  KC_G,   KC_H,   J_CTL,  K_SFT,  L_ALT,  CM_FNSC,CM_JHNZ,KC_ENT,
+    KC_LCTL,A_FN,   S_SFT,  D_ALT,  F_CTL,  G_GUI,  H_GUI,  J_CTL,  K_ALT,  L_SFT,  CM_FNSC,CM_JHNZ,KC_ENT,
     KC_LSFT,KC_Z,   X_CTL,  KC_C,   KC_V,   KC_B,   KC_N,   KC_M,   CM_FNCM,CM_FNQU,SL_SFT, KC_RSFT,LT_SYS,
     KC_LGUI,KC_LALT,CM_SPFN,KC_RALT,KC_RGUI),
 
@@ -157,17 +170,24 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______,KC_QUES,KC_COLN,KC_LABK,KC_RABK,KC_SCLN,_______,_______,_______,_______,_______,_______,_______,
     _______,_______,_______,_______,_______),
 
+  [CURFN] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,MO_EXCL,MO_HYPE,_______,CM_STAB,KC_HOME,KC_UP,  KC_END, KC_TAB, _______,_______,_______,
+    _______,_______,KC_LSFT,KC_LALT,KC_LCTL,KC_LGUI,KC_BSPC,KC_LEFT,KC_DOWN,KC_RGHT,KC_ENT, _______,_______,
+    _______,_______,_______,_______,MO_HYPE,_______,CM_JHNZ,CM_CAPS,KC_PGUP,KC_PGDN,CM_SF10,_______,_______,
+    _______,_______,_______,_______,_______),
+
   [JSPFN] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
     _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
-    _______,MO_HYPS,CM_ALCT,KC_ESC ,SW_ATAB,_______,CM_STAB,KC_HOME,KC_UP,  KC_END, KC_TAB, _______,_______,_______,
-    _______,KC_LGUI,KC_LALT,KC_LSFT,KC_LCTL,_______,KC_BSPC,KC_LEFT,KC_DOWN,KC_RGHT,KC_ENT, _______,_______,
+    _______,CM_ALCT,CM_ALT4,KC_ESC, SW_ATAB,CM_WSCS,CM_STAB,KC_HOME,KC_UP,  KC_END, KC_TAB, _______,_______,_______,
+    _______,KC_DEL, KC_LSFT,KC_LALT,KC_LCTL,KC_LGUI, KC_BSPC,KC_LEFT,KC_DOWN,KC_RGHT,KC_ENT, _______,_______,
     _______,KC_1   ,KC_2   ,KC_3   ,KC_4   ,KC_5   ,KC_6   ,KC_7   ,KC_8   ,KC_9   ,KC_0   ,_______,_______,
     _______,_______,_______,_______,_______),
 
   [USPFN] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
     _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
-    _______,MO_HYPS,CM_ALCT,KC_ESC ,SW_ATAB,_______,CM_STAB,KC_HOME,KC_UP,  KC_END, KC_TAB, _______,_______,_______,
-    _______,KC_LGUI,KC_LALT,KC_LSFT,KC_LCTL,_______,KC_BSPC,KC_LEFT,KC_DOWN,KC_RGHT,KC_ENT, _______,_______,
+    _______,CM_ALCT,CM_ALT4,KC_ESC, SW_ATAB,CM_WSCS,CM_STAB,KC_HOME,KC_UP,  KC_END, KC_TAB, _______,_______,_______,
+    _______,KC_DEL, KC_LSFT,KC_LALT,KC_LCTL,KC_LGUI, KC_BSPC,KC_LEFT,KC_DOWN,KC_RGHT,KC_ENT, _______,_______,
     _______,KC_1   ,KC_2   ,KC_3   ,KC_4   ,KC_5   ,KC_6   ,KC_7   ,KC_8   ,KC_9   ,KC_0   ,_______,_______,
     _______,_______,_______,_______,_______),
 
@@ -187,14 +207,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [EXCL] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
     _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
-    _______,_______,_______,_______,_______,_______,_______,CM_CHOM,KC_PGUP,CM_CEND,_______,_______,_______,_______,
+    _______,_______,CM_ALT4,_______,_______,_______,_______,CM_CHOM,KC_PGUP,CM_CEND,_______,_______,_______,_______,
     _______,_______,_______,_______,_______,_______,_______,CM_CPGU,KC_PGDN,CM_CPGD,_______,_______,_______,
     _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
     _______,_______,_______,_______,_______),
 
   [HYPE] = LAYOUT_60_hhkb( /* Qwerty 101 uskey */
     _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
-    _______,_______,CM_ALT4,KC_ESC, KC_DEL, CM_WSCS,_______,_______,CM_UP,  _______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______,_______,_______,_______,CM_UP,  _______,_______,_______,_______,_______,
     _______,_______,_______,_______,_______,_______,KC_PGUP,CM_LEFT,CM_DOWN,CM_RGHT,_______,_______,_______,
     _______,_______,_______,_______,_______,_______,KC_PGDN,CM_CHOM,CM_CPGU,CM_CPGD,CM_CEND,_______,_______,
     _______,_______,_______,_______,_______),
@@ -218,9 +238,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
     LAYOUT_60_hhkb(
         'L','L','L','L','L','L','L','R','R','R','R','R','R','R','R',
-        'L','L','L','L','L','L','L','R','R','R','R','R','R','R',
-        'L','L','L','L','L','L','L','R','R','R','R','R','R',
-        'L','L','L','L','L','L','L','R','R','R','R','R','R',
+        'L','L','L','L','L','L','R','R','R','R','R','R','R','R',
+        'L','L','L','L','L','L','R','R','R','R','R','R','R',
+        'L','L','L','L','L','L','R','R','R','R','R','R','R',
         'L','L','R','R','R'
     );
 
@@ -253,7 +273,9 @@ bool is_flow_tap_key(uint16_t keycode) {
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case D_SFT:
+        case X_CTL:
+        case S_SFT:
+        case L_SFT:
             return TAPPING_TERM-40;
         default:
             return TAPPING_TERM;
@@ -262,6 +284,9 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 
 bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
+        case G_FN:
+        case X_CTL:
+            return true;
         default:
             return false;
     }
