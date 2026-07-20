@@ -14,12 +14,13 @@
 #define ARW1    5
 #define ARW2    6
 #define EXCL    7
-#define JSYM    8
-#define USYM    9
-#define JSYM2   10
-#define USYM2   11
-#define FUNC    12
-#define ALTTAB  13
+#define SYM     8
+#define JSYM    9
+#define USYM    10
+#define JSYM2   11
+#define USYM2   12
+#define FUNC    13
+#define ALTTAB  14
 
 //windows app利用時のmodキーの取りこぼしに対処するウェイトms
 #define DELAY_KEY_MS 60
@@ -30,6 +31,7 @@
 #define SP_SFT  LSFT_T(KC_SPC)
 #define ET_SFT  LSFT_T(KC_ENT)
 #define SL_SFT  SFT_T(KC_SLSH)
+#define DO_SFT  SFT_T(KC_DOT)
 #define Z_SFT   LSFT_T(KC_Z)
 #define F_CTL   LCTL_T(KC_F)
 #define J_CTL   RCTL_T(KC_J)
@@ -43,6 +45,8 @@
 #define LT_EXCL LT(EXCL,KC_ESC)
 #define LT_NUM  LT(NUM,KC_DOT)
 #define LT_FUNC LT(FUNC,KC_BSPC)
+#define MO_EXCL MO(EXCL)
+#define MO_SYM MO(SYM)
 #define MO_JSM MO(JSYM)
 #define MO_USM MO(USYM)
 #define MO_JSM2 MO(JSYM2)
@@ -68,7 +72,6 @@
 #define L_SFT RSFT_T(KC_L)
 #define Z_SFT LSFT_T(KC_Z)
 #define A_ALT LALT_T(KC_A)
-
 
 #define CM_CPGU C(KC_PGUP)
 #define CM_CPGD C(KC_PGDN)
@@ -143,6 +146,10 @@ enum custom_keycodes {
   MC_RABK,
   MC_QUES,
   MC_UNDS,
+  CTLPGDN,
+  CTLPGUP,
+  CTLHOME,
+  CTLEND,
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -159,7 +166,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [JBASE] = LAYOUT( /* Qwerty 106 jpkey */
     KC_Q,   KC_W,   KC_E,   KC_R,   KC_T,   KC_Y,   KC_U,   KC_I,   KC_O,   KC_P,   CM_FUNC,
     A_ALT,  KC_S,   KC_D,   KC_F,   G_GUI,  KC_H,   KC_J,   KC_K,   L_ALT,  CM_NUM,
-    Z_SFT,  KC_X,   KC_C,   KC_V,   KC_B,   KC_N,   KC_M,   CM_FNCM,CM_FNSC,TS_RSFT,
+    Z_SFT,  KC_X,   KC_C,   KC_V,   KC_B,   KC_N,   KC_M,   CM_FNCM,CM_FNSC,KC_LSFT,
     _______,KC_LCTL,_______,CM_QFN, _______,_______,KC_LCTL,_______),
 //    TS_LCTL,KC_LCTL,TS_RSFT,CM_QFN, LM_NUM, CM_QFN),
 
@@ -170,9 +177,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______,KC_LCTL,_______,CM_QFN, _______,_______,KC_LCTL,_______),
 
   [JQFN] = LAYOUT( /* Qwerty 101 uskey */
-    CM_GUIE,M_ALTF4,KC_ESC, MS_WHLU,MS_WHLD,CM_STAB,KC_RBRC,KC_UP,  KC_NUHS,KC_TAB,KC_F2,
+    CM_ALCT,M_ALTF4,KC_ESC, MO_EXCL,SW_ATAB,CM_STAB,KC_HOME,KC_UP,  KC_END, KC_TAB,KC_F2,
     KC_LALT,TS_LSFT,KC_DEL, LT_ARW2,KC_LGUI,KC_BSPC,KC_LEFT,KC_DOWN,KC_RGHT,KC_ENT,
-    TS_LSFT,CM_ALCT,SW_ATAB,MS_BTN1,CM_SF10,_______,KC_HOME,KC_PGUP,KC_PGDN,KC_END,
+    KC_1,   KC_2,   KC_3,   KC_4,   KC_5,   KC_6,   KC_7,   KC_8,   KC_9,   KC_0,
     _______,_______,_______,_______,_______,_______,_______,_______),
 
   [UQFN] = LAYOUT( /* Qwerty 101 uskey */
@@ -182,14 +189,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______,_______,_______,_______,_______,_______,_______,_______),
 
   [NUM] = LAYOUT( /* Qwerty 101 uskey */
-    JP_SCLN,KC_7,   KC_8,   KC_9,   KC_SLSH,_______,_______,MC_LABK,MC_RABK,_______,QK_BOOT,
-    JP_COLN,KC_4,   KC_5,   KC_6,   KC_MINS,_______,KC_QUOT,KC_SCLN,KC_RSFT,_______,
-    KC_0,   KC_1,   KC_2,   KC_3,   MC_UNDS,_______,KC_QUOT,KC_SCLN,_______,_______,
+    _______,KC_7,   KC_8,   KC_9,   _______,_______,_______,_______,_______,_______,QK_BOOT,
+    _______,KC_4,   KC_5,   KC_6,   KC_MINS,_______,_______,_______,_______,_______,
+    KC_0,   KC_1,   KC_2,   KC_3,   _______,_______,_______,_______,_______,_______,
     _______,_______,_______,_______,_______,_______,_______,_______),
 
   [ARW1] = LAYOUT( /* Qwerty 101 uskey */
-    _______,_______,_______,_______,_______,CM_STAB,KC_HOME,KC_UP,  KC_END, KC_TAB,_______,
-    _______,_______,_______,_______,_______,KC_BSPC,KC_LEFT,KC_DOWN,KC_RGHT,KC_ENT,
+    _______,_______,_______,_______,_______,CM_STAB,KC_HOME,KC_UP,  KC_ENT, KC_TAB,_______,
+    _______,_______,_______,_______,_______,KC_BSPC,KC_LEFT,KC_DOWN,KC_RGHT,_______,
     _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
     _______,_______,_______,_______,_______,_______,_______,_______),
 
@@ -200,22 +207,40 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______,_______,_______,_______,_______,_______,_______,_______),
 
   [EXCL] = LAYOUT( /* Qwerty 101 uskey */
-    _______,_______,_______,_______,_______,_______,CM_CHOM,KC_PGUP,CM_CEND,_______,_______,
-    _______,_______,_______,_______,_______,_______,CM_CPGU,KC_PGDN,CM_CPGD,_______,
+    _______,_______,CM_WSCS,_______,_______,_______,CTLHOME,KC_PGUP,CTLEND, _______,_______,
+    _______,_______,_______,_______,_______,_______,CTLPGUP,KC_PGDN,CTLPGDN,_______,
     _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______,_______,_______,_______),
+
+  [SYM] = LAYOUT( /* Qwerty 101 uskey */
+    MC_EXLM,JP_AT,  MC_HASH,MC_DLR, MC_PERC,_______,_______,JP_LBRC,JP_RBRC,JP_SCLN,_______,
+    MC_UNDS,MC_PLUS,MC_EQL, MC_ASTR,JP_CIRC,MC_LCBR,MC_RCBR,MC_LPRN,MC_RPRN,JP_COLN,
+    JP_BSLS,MC_AMPR,MC_PIPE,MC_TILD,MC_GRV, MC_QUOT,MC_DQUO,MC_LABK,MC_RABK,MC_QUES,
     _______,_______,_______,_______,_______,_______,_______,_______),
 
   [JSYM] = LAYOUT( /* Qwerty 101 uskey */
     MC_EXLM,JP_AT,  MC_HASH,MC_DLR, MC_PERC,_______,_______,_______,_______,_______,_______,
-    MC_QUES,MC_PLUS,MC_EQL, MC_ASTR,JP_CIRC,_______,_______,_______,_______,_______,
-    JP_BSLS,MC_AMPR,MC_PIPE,MC_TILD,MC_GRV, _______,_______,_______,_______,_______,
+    MC_UNDS,MC_PLUS,MC_EQL, MC_ASTR,JP_CIRC,_______,_______,_______,_______,_______,
+    JP_BSLS,MC_AMPR,MC_PIPE,MC_TILD,MC_GRV, _______,_______,CM_IME, _______,_______,
     _______,_______,_______,_______,_______,_______,_______,_______),
 
   [JSYM2] = LAYOUT( /* Qwerty 101 uskey */
-    MC_LCBR,MC_RCBR,JP_LBRC,JP_RBRC,_______,_______,_______,_______,_______,_______,_______,
-    MC_QUOT,MC_DQUO,MC_LPRN,MC_RPRN,_______,_______,_______,_______,_______,_______,
-    _______,_______,MC_LABK,MC_RABK,_______,_______,_______,_______,_______,_______,
+    MC_LABK,MC_RABK,JP_LBRC,JP_RBRC,MC_LCBR,_______,_______,_______,_______,_______,QK_BOOT,
+    MC_QUOT,MC_DQUO,MC_LPRN,MC_RPRN,MC_RCBR,_______,CM_SF10,_______,_______,_______,
+    MC_QUES,KC_SLSH,JP_COLN,JP_SCLN,_______,_______,_______,_______,_______,_______,
     _______,_______,_______,_______,_______,_______,_______,_______),
+
+//  [JSYM2] = LAYOUT( /* Qwerty 101 uskey */
+//    MC_DQUO,MC_LABK,MC_LPRN,JP_LBRC,MC_LCBR,_______,_______,_______,_______,_______,QK_BOOT,
+//    MC_QUOT,MC_RABK,MC_RPRN,JP_RBRC,MC_RCBR,_______,CM_SF10,_______,_______,_______,
+//    MC_QUES,KC_SLSH,JP_COLN,JP_SCLN,_______,_______,_______,_______,_______,_______,
+//    _______,_______,_______,_______,_______,_______,_______,_______),
+
+//  [JSYM2] = LAYOUT( /* Qwerty 101 uskey */
+//    MC_LCBR,MC_RCBR,JP_LBRC,JP_RBRC,_______,_______,_______,_______,_______,_______,_______,
+//    MC_QUOT,MC_DQUO,MC_LPRN,MC_RPRN,_______,_______,_______,_______,_______,_______,
+//    _______,_______,MC_LABK,MC_RABK,_______,_______,_______,_______,_______,_______,
+//    _______,_______,_______,_______,_______,_______,_______,_______),
 
   [USYM] = LAYOUT( /* Qwerty 101 uskey */
     KC_EXLM,KC_AT,  KC_HASH,KC_DLR, KC_PERC,_______,_______,_______,_______,_______,_______,
@@ -236,9 +261,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______,_______,_______,_______,_______,_______,_______,_______),
 
   [ALTTAB] = LAYOUT( /* Qwerty 101 uskey */
-    _______,_______,_______,_______,_______,_______,_______,KC_UP,  _______,_______,_______,
+    CM_STAB,_______,_______,_______,KC_TAB ,_______,_______,KC_UP,  _______,_______,_______,
     _______,_______,_______,_______,_______,_______,KC_LEFT,KC_DOWN,KC_RGHT,_______,
-    _______,CM_STAB,KC_TAB ,_______,_______,_______,_______,_______,_______,_______,
+    _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
     _______,_______,_______,_______,_______,_______,_______,_______),
 
 };
@@ -275,6 +300,7 @@ enum combos {
   CB_SPC_S,
   CB_SPC_X,
 
+  CB_JK,
   CB_WE,
   CB_AS,
   CB_FD,
@@ -291,11 +317,13 @@ const uint16_t PROGMEM cb_spc_e_combo[]   =  {CM_QFN,  KC_E,    COMBO_END};
 const uint16_t PROGMEM cb_spc_s_combo[]   =  {CM_QFN,  KC_S,    COMBO_END};
 const uint16_t PROGMEM cb_spc_x_combo[]   =  {CM_QFN,  KC_X,    COMBO_END};
 
+const uint16_t PROGMEM cb_jk_combo[] =  {KC_J, KC_K, COMBO_END};
 const uint16_t PROGMEM cb_we_combo[] =  {KC_W, KC_E, COMBO_END};
 const uint16_t PROGMEM cb_sd_combo[] =  {KC_S,  KC_D, COMBO_END};
 
 const uint16_t PROGMEM cb_fd_combo[] =  {KC_F, KC_D, COMBO_END};
 const uint16_t PROGMEM cb_kl_combo[] =  {KC_K, L_ALT,  COMBO_END};
+
 const uint16_t PROGMEM cb_qw_combo[] =  {KC_Q,  KC_W,  COMBO_END};
 const uint16_t PROGMEM cb_spc_a_combo[]   =  {CM_QFN,  KC_A,    COMBO_END};
 const uint16_t PROGMEM cb_spc_ent_combo[] =  {CM_QFN,  CM_NUM,  COMBO_END};
@@ -305,13 +333,15 @@ const uint16_t PROGMEM cb_as_combo[] =       {KC_A,    KC_S,  COMBO_END};
 combo_t key_combos[] = {
   // AとSが同時にホールドされている間、Left Shiftを送信
   [CB_SPC_Q] =   COMBO(cb_spc_q_combo,   G(KC_E)),
-  [CB_SPC_W] =   COMBO(cb_spc_w_combo,   M_ALTF4),
+  //[CB_SPC_W] =   COMBO(cb_spc_w_combo,   M_ALTF4),
   [CB_SPC_E] =   COMBO(cb_spc_e_combo,   KC_ESC),
-  [CB_SPC_S] =   COMBO(cb_spc_s_combo,   CM_WSCS),
+  //[CB_SPC_S] =   COMBO(cb_spc_s_combo,   CM_WSCS),
   [CB_SPC_X] =   COMBO(cb_spc_x_combo,   G(KC_D)),
 
+  [CB_SD] = COMBO(cb_sd_combo, MO(SYM)),
+  [CB_KL] = COMBO(cb_kl_combo, MO(SYM)),
+
   [CB_FD] = COMBO(cb_fd_combo, G(KC_D)),
-  [CB_KL] = COMBO(cb_kl_combo, CM_IME),
   [CB_QW] = COMBO(cb_qw_combo, A(KC_F4)),
   [CB_SPC_A] =   COMBO(cb_spc_a_combo,   KC_LSFT),
   [CB_SPC_ENT] = COMBO(cb_spc_ent_combo, KC_RSFT),
@@ -366,7 +396,6 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case Z_SFT:
-        case ET_SFT:
             return true;
         default:
             return false;
@@ -458,12 +487,15 @@ static uint16_t mod_switch_keycode = false;
 //        layer_off(layer);
 //        if (*modifier_pressed && (tapping_term_disable || (timer_elapsed(*modifier_pressed_time) < TAPPING_TERM))) {
 //         if (get_highest_layer(default_layer_state)==JBASE){
-//             SEND_STRING(SS_LALT("`"));
+//                register_code(KC_LALT);
+//                wait_ms(DELAY_KEY_MS);    // ② DELAY_KEY_MS 待つ（ここでお好みのmsに調整
+//                tap_code(KC_GRAVE);
+//                unregister_code(KC_LALT);
 //         }else{
-//             SEND_STRING(SS_LALT("`"));
-//             //VM利用時はカラビナでALTGRAVに置き換えて解釈
-//             //(VM利用時はカラビナでCNTLがまずcontrol->command command->controlとなる
-//             //　つぎにーカラビナでCommand+SPAVEであればALT+GRAVに変換）
+//                register_code(KC_LALT);
+//                wait_ms(DELAY_KEY_MS);    // ② DELAY_KEY_MS 待つ（ここでお好みのmsに調整
+//                tap_code(KC_GRAVE);
+//                unregister_code(KC_LALT);
 //         }
 //        }
 //        *modifier_pressed = false;
@@ -479,9 +511,15 @@ static void user_shft_func(keyrecord_t *record, bool *modifier_pressed, uint16_t
         unregister_mods(MOD_BIT(KC_RSFT));
         if (*modifier_pressed && (tapping_term_disable || (timer_elapsed(*modifier_pressed_time) < TAPPING_TERM))) {
            if (get_highest_layer(default_layer_state)==JBASE){
-               SEND_STRING(SS_LALT("`"));
+                register_code(KC_LALT);
+                wait_ms(DELAY_KEY_MS);    // ② DELAY_KEY_MS 待つ（ここでお好みのmsに調整
+                tap_code(KC_GRAVE);
+                unregister_code(KC_LALT);
            }else{
-               SEND_STRING(SS_LALT("`"));
+                register_code(KC_LALT);
+                wait_ms(DELAY_KEY_MS);    // ② DELAY_KEY_MS 待つ（ここでお好みのmsに調整
+                tap_code(KC_GRAVE);
+                unregister_code(KC_LALT);
            }
            //cpas lockがonだったらCAPSLOCKをOFFにする
            if (host_keyboard_led_state().caps_lock) {
@@ -558,6 +596,35 @@ static void mod_layer_switch (keyrecord_t *record,
         wait_ms(DELAY_KEY_MS);
     }
 }
+static void user_lt_hnzn(keyrecord_t *record,
+        int layer,
+        bool *modifier_pressed,
+        uint16_t *modifier_pressed_time,
+        bool tapping_term_disable,
+        uint16_t *mod_switch_keycode){  //mod差し替えフラグ兼KEYCODE
+
+    if (record->event.pressed) {
+        *modifier_pressed = true;
+        *modifier_pressed_time = record->event.time;
+        layer_on(layer);
+    } else {
+        //もしMODキー差替有効中だったらMODキーをクリア（レイヤー移動もクリア）
+        if(*mod_switch_keycode){
+            unregister_code(*mod_switch_keycode);
+            //set_mods(get_mods() & ~MOD_BIT(*mod_switch_keycode));
+            *mod_switch_keycode = 0;
+            layer_clear();
+        }
+        layer_off(layer);
+        if (*modifier_pressed && (tapping_term_disable || (timer_elapsed(*modifier_pressed_time) < TAPPING_TERM))) {
+            register_code(KC_LALT);
+            wait_ms(DELAY_KEY_MS);    // ② DELAY_KEY_MS 待つ（ここでお好みのmsに調整
+            tap_code(KC_GRAVE);
+            unregister_code(KC_LALT);
+        }
+    *modifier_pressed = false;
+    }
+}
 
 static void user_lt(keyrecord_t *record,
         int layer,
@@ -615,6 +682,19 @@ static void user_lt(keyrecord_t *record,
         }
     *modifier_pressed = false;
     }
+}
+//ctl+home ctl+end ctl+pgup ctl+pgdn
+static void ctrl_keypress(keyrecord_t *record,uint16_t keycode){
+      if (record->event.pressed) {
+         // コンボが成立してキーが「押された」ときの処理
+         register_code(KC_LCTL);   // ① ALTを押し下げる
+         wait_ms(DELAY_KEY_MS);    // ② DELAY_KEY_MS 待つ（ここでお好みのmsに調整）
+         register_code(keycode);     // ③ F4を押し下げる
+      } else {
+         // キーが「離された」ときの処理
+         unregister_code(keycode);   // ④ F4を離す
+         unregister_code(KC_LCTL); // ⑤ ALTを離す
+      }
 }
 
 static void shift_keypress(keyrecord_t *record,uint16_t keycode){
@@ -680,9 +760,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       break;
     case CM_NUM:
       if (get_highest_layer(default_layer_state)==JBASE){
-        user_lt(record,NUM,KC_ENT,&num_pressed,&num_pressed_time,false,&mod_switch_keycode);
+        user_lt_hnzn(record,JSYM2,&num_pressed,&num_pressed_time,false,&mod_switch_keycode);
       } else {
-        user_lt(record,NUM,KC_ENT,&num_pressed,&num_pressed_time,false,&mod_switch_keycode);
+        user_lt_hnzn(record,JSYM2,&num_pressed,&num_pressed_time,false,&mod_switch_keycode);
       }
       return false;
       break;
@@ -709,7 +789,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       if (get_highest_layer(default_layer_state)==JBASE){
         user_lt(record,JSYM2,KC_COMM,&fncm_pressed,&fncm_pressed_time,false,&mod_switch_keycode);
       } else {
-        user_lt(record,USYM2,KC_COMM,&fncm_pressed,&fncm_pressed_time,false,&mod_switch_keycode);
+        user_lt(record,SYM,KC_COMM,&fncm_pressed,&fncm_pressed_time,false,&mod_switch_keycode);
       }
       return false;
       break;
@@ -734,7 +814,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             SEND_STRING(SS_TAP(X_CAPS));
             SEND_STRING(SS_UP(X_LSFT));
           }
-          SEND_STRING(SS_LALT("`"));
+          SEND_STRING(SS_DOWN(X_LALT) SS_DELAY(DELAY_KEY_MS) SS_TAP(X_GRAVE) SS_UP(X_LALT));
       }
       return false;
       break;
@@ -945,7 +1025,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       shift_keypress(record, KC_INT1);
       return false;
       break;
-
+    case CTLPGDN:
+      ctrl_keypress(record, KC_PGDN);
+      return false;
+      break;
+    case CTLPGUP:
+      ctrl_keypress(record, KC_PGUP);
+      return false;
+      break;
+    case CTLHOME:
+      ctrl_keypress(record, KC_HOME);
+      return false;
+      break;
+    case CTLEND:
+      ctrl_keypress(record, KC_END);
+      return false;
+      break;
     default:
       if (record->event.pressed) {
         // reset the flag
