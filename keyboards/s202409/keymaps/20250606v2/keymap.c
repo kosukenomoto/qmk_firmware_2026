@@ -130,7 +130,7 @@ enum custom_keycodes {
     CM_K_QI,
     CM_K_QO,
     CM_K_QP,
-};
+},;
 
 //const uint16_t PROGMEM esc_combo[] = {KC_W, KC_E, COMBO_END};
 //const uint16_t PROGMEM guitab_combo[] = {KC_E, KC_R, COMBO_END};
@@ -245,14 +245,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [JFN] = LAYOUT_split_3x5_3(
         _______,  _______,  _______,  _______,  _______,        _______,  _______,  _______,  _______,  _______,
-        KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,          KC_BTN1,  CM_SF10,  JP_ZKHK,  CM_CAPS,  _______,
+        KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,          MC_BTN1,  CM_SF10,  JP_ZKHK,  CM_CAPS,  _______,
         KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,         KC_F11,   KC_F12,   _______,  _______,  KC_LSFT,
                             _______,  _______,  _______,        _______,  _______,  _______
     ),
 
     [UFN] = LAYOUT_split_3x5_3(
         _______,  _______,  _______,  _______,  _______,        _______,  _______,  _______,  _______,  _______,
-        KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,          KC_BTN1,  CM_SF10,  CM_UHNZ,  CM_CAPS,  _______,
+        KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,          MC_BTN1,  CM_SF10,  CM_UHNZ,  CM_CAPS,  _______,
         KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,         KC_F11,   KC_F12,   _______,  _______,  KC_LSFT,
                             _______,  _______,  _______,        _______,  _______,  _______
     ),

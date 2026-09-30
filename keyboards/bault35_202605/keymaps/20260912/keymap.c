@@ -10,7 +10,6 @@
 #define UBASE   1
 #define JQFN    2
 #define UQFN    3
-#define NUM     4
 #define ARW1    5
 #define ARW2    6
 #define EXCL    7
@@ -19,8 +18,9 @@
 #define USYM    10
 #define JSYM2   11
 #define USYM2   12
-#define FUNC    13
-#define ALTTAB  14
+#define NUM     13
+#define FUNC    14
+#define ALTTAB  15
 
 //windows app利用時のmodキーの取りこぼしに対処するウェイトms
 #define DELAY_KEY_MS 60
@@ -113,6 +113,7 @@ enum custom_keycodes {
   CM_FNCM,
   CM_IME,
   CM_CAON,
+  CM_CAOFF,
   CM_ALCT,
   CM_SFTF,
   TS_LCTL,
@@ -166,7 +167,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [JBASE] = LAYOUT( /* Qwerty 106 jpkey */
     KC_Q,   KC_W,   KC_E,   KC_R,   KC_T,   KC_Y,   KC_U,   KC_I,   KC_O,   KC_P,   CM_FUNC,
     A_ALT,  KC_S,   KC_D,   KC_F,   G_GUI,  KC_H,   KC_J,   KC_K,   L_ALT,  CM_NUM,
-    Z_SFT,  KC_X,   KC_C,   KC_V,   KC_B,   KC_N,   KC_M,   CM_FNCM,CM_FNSC,KC_RSFT,
+    Z_SFT,  KC_X,   KC_C,   KC_V,   KC_B,   KC_N,   KC_M,   CM_FNCM,KC_DOT, KC_RSFT,
     _______,KC_LCTL,_______,CM_QFN, _______,_______,CM_CAON,_______),
 //    TS_LCTL,KC_LCTL,TS_RSFT,CM_QFN, LM_NUM, CM_QFN),
 
@@ -179,7 +180,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [JQFN] = LAYOUT( /* Qwerty 101 uskey */
     CM_ALCT,M_ALTF4,KC_ESC, MO_EXCL,SW_ATAB,CM_STAB,KC_HOME,KC_UP,  KC_END, KC_TAB,KC_F2,
     KC_LALT,TS_LSFT,KC_DEL, LT_ARW2,KC_LGUI,KC_BSPC,KC_LEFT,KC_DOWN,KC_RGHT,KC_ENT,
-    KC_1,   KC_2,   KC_3,   KC_4,   KC_5,   KC_6,   KC_7,   KC_8,   KC_9,   KC_0,
+    MC_EXLM,JP_AT,  MC_HASH,MC_DLR, MC_PERC,JP_CIRC,MC_AMPR,MC_ASTR,KC_DOT, MC_QUES,
     _______,_______,_______,_______,_______,_______,_______,_______),
 
   [UQFN] = LAYOUT( /* Qwerty 101 uskey */
@@ -189,9 +190,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______,_______,_______,_______,_______,_______,_______,_______),
 
   [NUM] = LAYOUT( /* Qwerty 101 uskey */
-    _______,KC_7,   KC_8,   KC_9,   _______,_______,_______,_______,_______,_______,QK_BOOT,
-    _______,KC_4,   KC_5,   KC_6,   KC_MINS,_______,_______,_______,_______,_______,
-    KC_0,   KC_1,   KC_2,   KC_3,   _______,_______,_______,_______,_______,_______,
+    _______,KC_7,   KC_8,   KC_9,   _______,_______,_______,_______,_______,_______,_______,
+    MC_EQL, KC_4,   KC_5,   KC_6,   _______,_______,_______,_______,_______,_______,
+    KC_0,   KC_1,   KC_2,   KC_3,   _______,_______,CM_CAON,_______,CM_CAOFF,_______,
     _______,_______,_______,_______,_______,_______,_______,_______),
 
   [ARW1] = LAYOUT( /* Qwerty 101 uskey */
@@ -211,12 +212,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______,_______,_______,_______,_______,_______,CTLPGUP,KC_PGDN,CTLPGDN,_______,
     _______,_______,_______,_______,_______,_______,_______,_______,_______,_______,
     _______,_______,_______,_______,_______,_______,_______,_______),
-
   [SYM] = LAYOUT( /* Qwerty 101 uskey */
-    MC_EXLM,JP_AT,  MC_HASH,MC_DLR, MC_PERC,_______,MC_AMPR,JP_LBRC,JP_RBRC,JP_SCLN,_______,
-    MC_UNDS,MC_PLUS,MC_EQL, MC_ASTR,JP_CIRC,MC_LCBR,MC_RCBR,MC_LPRN,MC_RPRN,JP_COLN,
-    JP_BSLS,KC_SLSH,MC_PIPE,MC_TILD,MC_GRV, MC_QUOT,MC_DQUO,MC_LABK,MC_RABK,MC_QUES,
+    MC_EXLM,JP_AT,  MC_HASH,MC_DLR, MC_PERC,JP_CIRC,MC_AMPR,MC_ASTR,MC_PLUS,MC_GRV, QK_BOOT,
+    MC_UNDS,KC_SLSH,KC_MINS,MC_LPRN,MC_RPRN,MC_LCBR,MC_RCBR,JP_LBRC,JP_RBRC,_______,
+    MC_QUES,MC_TILD,JP_COLN,JP_SCLN,JP_BSLS,MC_QUOT,MC_DQUO,MC_PIPE,MC_EQL, _______,
     _______,_______,_______,_______,_______,_______,_______,_______),
+ // [SYM] = LAYOUT( /* Qwerty 101 uskey */
+ //   KC_MINS,KC_SLSH,JP_COLN,JP_SCLN,_______,_______,_______,JP_LBRC,JP_RBRC,_______,QK_BOOT,
+ //   MC_UNDS,MC_PLUS,MC_EQL, MC_LPRN,MC_RPRN,MC_LCBR,MC_RCBR,_______,_______,_______,
+ //   JP_BSLS,MC_QUES,MC_PIPE,MC_TILD,MC_GRV, MC_QUOT,MC_DQUO,_______,_______,_______,
+ //   _______,_______,_______,_______,_______,_______,_______,_______),
 
   [JSYM] = LAYOUT( /* Qwerty 101 uskey */
     MC_EXLM,JP_AT,  MC_HASH,MC_DLR, MC_PERC,_______,_______,_______,_______,_______,_______,
@@ -305,6 +310,7 @@ enum combos {
   CB_AS,
   CB_FD,
   CB_KL,
+  CB_ZX,
   CB_SD,
   CB_QW,
   CB_SPC_A,
@@ -318,10 +324,12 @@ const uint16_t PROGMEM cb_spc_s_combo[]   =  {CM_QFN,  KC_S,    COMBO_END};
 const uint16_t PROGMEM cb_spc_x_combo[]   =  {CM_QFN,  KC_X,    COMBO_END};
 
 const uint16_t PROGMEM cb_jk_combo[] =  {KC_J, KC_K, COMBO_END};
+const uint16_t PROGMEM cb_fd_combo[] =  {KC_F, KC_D, COMBO_END};
+
 const uint16_t PROGMEM cb_we_combo[] =  {KC_W, KC_E, COMBO_END};
 const uint16_t PROGMEM cb_sd_combo[] =  {KC_S,  KC_D, COMBO_END};
+const uint16_t PROGMEM cb_zx_combo[] =  {KC_X,  KC_Z, COMBO_END};
 
-const uint16_t PROGMEM cb_fd_combo[] =  {KC_F, KC_D, COMBO_END};
 const uint16_t PROGMEM cb_kl_combo[] =  {KC_K, L_ALT,  COMBO_END};
 
 const uint16_t PROGMEM cb_qw_combo[] =  {KC_Q,  KC_W,  COMBO_END};
@@ -331,6 +339,8 @@ const uint16_t PROGMEM cb_l_ent_combo[]   =  {L_ALT,    CM_NUM,  COMBO_END};
 const uint16_t PROGMEM cb_as_combo[] =       {KC_A,    KC_S,  COMBO_END};
 
 combo_t key_combos[] = {
+  [CB_L_ENT] = COMBO(cb_l_ent_combo,   MO(NUM)),
+
   // AとSが同時にホールドされている間、Left Shiftを送信
   [CB_SPC_Q] =   COMBO(cb_spc_q_combo,   G(KC_E)),
   //[CB_SPC_W] =   COMBO(cb_spc_w_combo,   M_ALTF4),
@@ -338,14 +348,14 @@ combo_t key_combos[] = {
   //[CB_SPC_S] =   COMBO(cb_spc_s_combo,   CM_WSCS),
   [CB_SPC_X] =   COMBO(cb_spc_x_combo,   G(KC_D)),
 
-  [CB_SD] = COMBO(cb_sd_combo, MO(SYM)),
-  [CB_KL] = COMBO(cb_kl_combo, MO(SYM)),
+  [CB_SD] = COMBO(cb_jk_combo, MO(SYM)),
+  [CB_KL] = COMBO(cb_fd_combo, MO(SYM)),
 
   [CB_FD] = COMBO(cb_fd_combo, G(KC_D)),
   [CB_QW] = COMBO(cb_qw_combo, A(KC_F4)),
+  [CB_ZX] = COMBO(cb_zx_combo, KC_LSFT),
   [CB_SPC_A] =   COMBO(cb_spc_a_combo,   KC_LSFT),
   [CB_SPC_ENT] = COMBO(cb_spc_ent_combo, KC_RSFT),
-  [CB_L_ENT] = COMBO(cb_l_ent_combo,   KC_RSFT),
   [CB_AS] =    COMBO(cb_as_combo,      KC_LSFT),
 };
 
@@ -786,9 +796,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       break;
     case CM_NUM:
       if (get_highest_layer(default_layer_state)==JBASE){
-        user_lt_hnzn(record,JSYM2,&num_pressed,&num_pressed_time,false,&mod_switch_keycode);
+        user_lt_hnzn(record,SYM,&num_pressed,&num_pressed_time,false,&mod_switch_keycode);
       } else {
-        user_lt_hnzn(record,JSYM2,&num_pressed,&num_pressed_time,false,&mod_switch_keycode);
+        user_lt_hnzn(record,SYM,&num_pressed,&num_pressed_time,false,&mod_switch_keycode);
       }
       return false;
       break;
@@ -813,9 +823,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       break;
     case CM_FNCM:
       if (get_highest_layer(default_layer_state)==JBASE){
-        user_lt(record,JSYM2,KC_COMM,&fncm_pressed,&fncm_pressed_time,false,&mod_switch_keycode);
+        user_lt(record,NUM,KC_COMM,&fncm_pressed,&fncm_pressed_time,false,&mod_switch_keycode);
       } else {
-        user_lt(record,SYM,KC_COMM,&fncm_pressed,&fncm_pressed_time,false,&mod_switch_keycode);
+        user_lt(record,NUM,KC_COMM,&fncm_pressed,&fncm_pressed_time,false,&mod_switch_keycode);
       }
       return false;
       break;
@@ -847,6 +857,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case CM_CAON:
       if(record->event.pressed){
           if (!host_keyboard_led_state().caps_lock) {
+              //then caps off の時caps on
+            SEND_STRING(SS_DOWN(X_LSFT));
+            SEND_STRING(SS_TAP(X_CAPS));
+            SEND_STRING(SS_UP(X_LSFT));
+          }
+      }
+      return false;
+      break;
+    case CM_CAOFF:
+      if(record->event.pressed){
+          if (host_keyboard_led_state().caps_lock) {
               //then caps off の時caps on
             SEND_STRING(SS_DOWN(X_LSFT));
             SEND_STRING(SS_TAP(X_CAPS));
