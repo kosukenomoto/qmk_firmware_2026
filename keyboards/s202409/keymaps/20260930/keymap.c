@@ -125,7 +125,7 @@ const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
     );
 
 bool is_flow_tap_key(uint16_t keycode) {
-    if ((get_mods() & (MOD_MASK_CG | MOD_BIT_LALT)) != 0) {
+    if (((get_mods() | get_weak_mods()) & (MOD_MASK_CG | MOD_BIT_LALT)) != 0) {
         return false; // Disable Flow Tap on hotkeys.
     }
     switch (get_tap_keycode(keycode)) {
@@ -166,106 +166,123 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
-static bool num_pressed = false;
-static uint16_t num_pressed_time = 0;
+// Track each physical key: CM_QFN and CM_NUM both occur more than once.
+typedef struct {
+    bool down;
+    bool tap;
+    uint16_t pressed_at;
+} layer_tap_state_t;
 
-static bool spfn_pressed = false;
-static uint16_t spfn_pressed_time = 0;
+static layer_tap_state_t layer_taps[MATRIX_ROWS][MATRIX_COLS];
+static uint8_t qfn_count;
+static uint8_t num_count;
+static bool alt_tab_active;
+static uint8_t symbol_shift_count;
 
-static uint16_t mod_switch_keycode = false;
+static void restore_held_weak_mods(void) {
+    // action_exec() clears weak modifiers on every new key press.
+    if (alt_tab_active) {
+        add_weak_mods(MOD_BIT(KC_LALT));
+    }
+    if (symbol_shift_count) {
+        add_weak_mods(MOD_BIT(KC_LSFT));
+    }
+}
 
-//ホールド中のキーをMODキーに差し替える。
-//layerの指定が0だったらデフォルトレイヤーでMODキーを動作させる
-static void mod_layer_switch (keyrecord_t *record,
-        uint16_t mod_keycode,uint16_t *mod_switch_keycode,int layer){
+bool pre_process_record_user(uint16_t keycode, keyrecord_t *record) {
+    restore_held_weak_mods();
+    return true;
+}
+
+void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
+    restore_held_weak_mods();
+    send_keyboard_report();
+}
+
+static void clear_alt_tab(void) {
+    if (alt_tab_active) {
+        del_weak_mods(MOD_BIT(KC_LALT));
+        send_keyboard_report();
+        layer_off(ALTTAB);
+        alt_tab_active = false;
+    }
+}
+
+static void start_alt_tab(void) {
+    // This session ends when the last QFN key is released.
+    if (!qfn_count) {
+        return;
+    }
+    alt_tab_active = true;
+    layer_on(ALTTAB);
+    add_weak_mods(MOD_BIT(KC_LALT));
+    send_keyboard_report();
+    wait_ms(DELAY_KEY_MS);
+    tap_code(KC_TAB);
+}
+
+static void tap_hnzn(void) {
+    const uint8_t saved_weak_mods = get_weak_mods();
+    add_weak_mods(MOD_BIT(KC_LALT));
+    send_keyboard_report();
+    wait_ms(DELAY_KEY_MS);
+    tap_code(KC_GRAVE);
+    set_weak_mods(saved_weak_mods);
+    send_keyboard_report();
+    if (host_keyboard_led_state().caps_lock) {
+        add_weak_mods(MOD_BIT(KC_LSFT));
+        send_keyboard_report();
+        tap_code(KC_CAPS);
+        set_weak_mods(saved_weak_mods);
+        send_keyboard_report();
+    }
+}
+
+static void user_layer_tap(keyrecord_t *record, uint8_t layer, uint8_t *count) {
+    layer_tap_state_t *state = &layer_taps[record->event.key.row][record->event.key.col];
     if (record->event.pressed) {
-        *mod_switch_keycode = mod_keycode;
-        if(layer == 0){
-            layer_clear();
-        }else{
+        if (!state->down) {
+            state->down = true;
+            state->tap = true;
+            state->pressed_at = timer_read();
+            ++*count;
             layer_on(layer);
         }
-        register_code(*mod_switch_keycode);
-        wait_ms(DELAY_KEY_MS);
-    }
-}
-
-//MODキー差替のクリア（レイヤー移動もクリア）
-static void clear_mod_switch(uint16_t *mod_switch_keycode){
-    if(*mod_switch_keycode){
-        unregister_code(*mod_switch_keycode);
-        *mod_switch_keycode = 0;
-        layer_clear();
-    }
-}
-
-static bool is_tapped(bool modifier_pressed, uint16_t modifier_pressed_time){
-    return modifier_pressed && timer_elapsed(modifier_pressed_time) < TAPPING_TERM;
-}
-
-//ホールドでレイヤー、タップで半角/全角（ALT+`）
-static void user_lt_hnzn(keyrecord_t *record,
-        int layer,
-        bool *modifier_pressed,
-        uint16_t *modifier_pressed_time,
-        uint16_t *mod_switch_keycode){  //mod差し替えフラグ兼KEYCODE
-
-    if (record->event.pressed) {
-        *modifier_pressed = true;
-        *modifier_pressed_time = record->event.time;
-        layer_on(layer);
-    } else {
-        clear_mod_switch(mod_switch_keycode);
-        layer_off(layer);
-        if (is_tapped(*modifier_pressed, *modifier_pressed_time)) {
-            register_code(KC_LALT);
-            wait_ms(DELAY_KEY_MS);
-            tap_code(KC_GRAVE);
-            unregister_code(KC_LALT);
-            //cpas lockがonだったらCAPSLOCKをOFFにする
-            if (host_keyboard_led_state().caps_lock) {
-                SEND_STRING(SS_DOWN(X_LSFT));
-                SEND_STRING(SS_TAP(X_CAPS));
-                SEND_STRING(SS_UP(X_LSFT));
+    } else if (state->down) {
+        const bool tapped = state->tap && timer_elapsed(state->pressed_at) < TAPPING_TERM;
+        state->down = false;
+        if (--*count == 0) {
+            layer_off(layer);
+            if (layer == QFN) {
+                clear_alt_tab();
             }
         }
-        *modifier_pressed = false;
-    }
-}
-
-//ホールドでレイヤー、タップでkeycode
-static void user_lt(keyrecord_t *record,
-        int layer,
-        uint16_t keycode,
-        bool *modifier_pressed,
-        uint16_t *modifier_pressed_time,
-        uint16_t *mod_switch_keycode){  //mod差し替えフラグ兼KEYCODE
-
-    if (record->event.pressed) {
-        *modifier_pressed = true;
-        *modifier_pressed_time = record->event.time;
-        layer_on(layer);
-    } else {
-        clear_mod_switch(mod_switch_keycode);
-        layer_off(layer);
-        if (is_tapped(*modifier_pressed, *modifier_pressed_time)) {
-            tap_code(keycode);
+        if (tapped) {
+            if (layer == QFN) {
+                tap_code(KC_SPC);
+            } else {
+                tap_hnzn();
+            }
         }
-        *modifier_pressed = false;
     }
 }
 
-//jp106 key layout code remotedesktop shiftkey s(KC_HOO)でシフトキー取りこぼすため
-//SHIFTを押してからDELAY_KEY_MS待ってキーを押す
-static void shift_keypress(keyrecord_t *record,uint16_t keycode){
-      if (record->event.pressed) {
-         register_code(KC_LSFT);
-         wait_ms(DELAY_KEY_MS);
-         register_code(keycode);
-      } else {
-         unregister_code(keycode);
-         unregister_code(KC_LSFT);
-      }
+// Weak modifiers preserve physical Shift, Alt and Ctrl held by the user.
+static void shift_keypress(keyrecord_t *record, uint16_t keycode) {
+    if (record->event.pressed) {
+        if (symbol_shift_count++ == 0) {
+            add_weak_mods(MOD_BIT(KC_LSFT));
+            send_keyboard_report();
+            wait_ms(DELAY_KEY_MS);
+        }
+        register_code(keycode);
+    } else {
+        unregister_code(keycode);
+        if (symbol_shift_count && --symbol_shift_count == 0) {
+            del_weak_mods(MOD_BIT(KC_LSFT));
+            send_keyboard_report();
+        }
+    }
 }
 
 static void tap_code_4times(keyrecord_t *record, uint16_t keycode){
@@ -277,48 +294,53 @@ static void tap_code_4times(keyrecord_t *record, uint16_t keycode){
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  restore_held_weak_mods();
   if (record->event.pressed) {
-    // reset the user_lt flags
-    if (keycode != CM_QFN)   {spfn_pressed = false;}
-    if (keycode != CM_NUM)   {num_pressed = false;}
+    // Any other physical key makes an outstanding layer tap a hold,
+    // including another key with the same custom keycode.
+    for (uint8_t row = 0; row < MATRIX_ROWS; ++row) {
+      for (uint8_t col = 0; col < MATRIX_COLS; ++col) {
+        if (row != record->event.key.row || col != record->event.key.col) {
+          layer_taps[row][col].tap = false;
+        }
+      }
+    }
   }
   switch (keycode) {
     case CM_QFN:
-      user_lt(record,QFN,KC_SPC,&spfn_pressed,&spfn_pressed_time,&mod_switch_keycode);
+      user_layer_tap(record, QFN, &qfn_count);
       return false;
     case CM_NUM:
-      user_lt_hnzn(record,SYM,&num_pressed,&num_pressed_time,&mod_switch_keycode);
+      user_layer_tap(record, SYM, &num_count);
       return false;
     case SW_ATAB:
-      mod_layer_switch(record,KC_LALT,&mod_switch_keycode,ALTTAB);
-      if(record->event.pressed){
-        tap_code(KC_TAB);
+      if (record->event.pressed) {
+        start_alt_tab();
       }
       return false;
     case CM_ALCT:
-      if(record->event.pressed){
-        register_code(KC_LALT);
-        register_code(KC_LCTL);
-        unregister_code(KC_LCTL);
-        unregister_code(KC_LALT);
-      }
-      mod_layer_switch(record,KC_LALT,&mod_switch_keycode,ALTTAB);
-      if(record->event.pressed){
-        tap_code(KC_TAB);
+      if (record->event.pressed) {
+        const uint8_t saved_weak_mods = get_weak_mods();
+        add_weak_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL));
+        send_keyboard_report();
+        wait_ms(DELAY_KEY_MS);
+        set_weak_mods(saved_weak_mods);
+        send_keyboard_report();
+        start_alt_tab();
       }
       return false;
     case CM_LEFT:
       tap_code_4times(record, KC_LEFT);
-      break;
+      return false;
     case CM_RGHT:
       tap_code_4times(record, KC_RGHT);
-      break;
+      return false;
     case CM_UP:
       tap_code_4times(record, KC_UP);
-      break;
+      return false;
     case CM_DOWN:
       tap_code_4times(record, KC_DOWN);
-      break;
+      return false;
 
     //以下はシフト考慮不要のためjp defineをそのまま利用可能
     //JP_MINS JP_CIRC JP_YEN  JP_AT   JP_LBRC JP_EISU JP_SCLN JP_COLN

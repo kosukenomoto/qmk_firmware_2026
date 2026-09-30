@@ -1,27 +1,63 @@
 # s202409
 
-![s202409](imgur.com image replace me!)
+split34基板用のATmega32U4（16 MHz）分割キーボード。片側18キー、合計36キーをGPIO直結で読み取ります。
+左右はPD2のソフトシリアル通信で接続し、左右の識別にはEEPROM（`EE_HANDS`）を使います。
 
-*A short description of the keyboard/project*
+* Maintainer: [Kosuke Nomoto](https://github.com/kosukenomoto)
+* 現行キーマップ: `20260930`（Windowsの日本語キーボード配列向け）
+* [回路図・PCBとの照合結果と修正内容](review-20260930.md)
 
-* Keyboard Maintainer: [Kosuke Nomoto](https://github.com/kosukenomoto)
-* Hardware Supported: *The PCBs, controllers supported*
-* Hardware Availability: *Links to where you can find this hardware*
+## ビルド
 
-Make example for this keyboard (after setting up your build environment):
+```sh
+make s202409:20260930
+```
 
-    make s202409:default
+生成物は `s202409_20260930.hex`。`default` と過去の日付のキーマップは以前の配列です。
+20260930の同時押し・修飾キー修正を利用するには、`20260930` を指定してください。
 
-Flashing example for this keyboard:
+## USB接続時の起動音
 
-    make s202409:default:flash
+通電後、左基板のPC6につながるスピーカーから、PC-98風の「ピポッ」を一度再生します。
+周波数は2,000 Hz → 1,000 Hz、各約100 ms（QMKの設定では101 ms）。
+[PiPoの作者による再現資料](https://bakutek.net/elec/PIC/PiPo4/PiPo4.html)を参考にしています。
+実機の起動音は機種によって長さが異なるため、今回は短い2音にしています。
 
-See the [build environment setup](https://docs.qmk.fm/#/getting_started_build_tools) and the [make instructions](https://docs.qmk.fm/#/getting_started_make_guide) for more information. Brand new to QMK? Start with our [Complete Newbs Guide](https://docs.qmk.fm/#/newbs).
+左右に同じファームウェアを書き込み、TRRSを接続していれば、USBを左右どちらに接続しても左から鳴ります。
+右基板単独ではスピーカーがないため鳴りません。
+再生は音声初期化後約300 ms。右USB接続時は左がUSB判定を待つため、通電から約2.3秒後になります。
+電源を切らないUSBの再認識やスリープ復帰では再生しません。MCUのリセット時は再生します。
 
-## Bootloader
+音声は初期設定で有効です。以前のEEPROMで音声が無効になっている場合は、スピーカーのある左側でBootmagicを実行し、通常設定を初期化してから再接続してください。
 
-Enter the bootloader in 3 ways:
+## 書き込みと左右設定
 
-* **Bootmagic reset**: Hold down the key at (0,0) in the matrix (usually the top left key or Escape) and plug in the keyboard
-* **Physical reset button**: Briefly press the button on the back of the PCB - some may have pads you must short instead
-* **Keycode in layout**: Press the key mapped to `QK_BOOT` if it is available
+初回、EEPROM消去後、左右設定が不明な場合は、左右をそれぞれ単独でUSB接続して以下を実行します。
+TRRSは外し、リセットスイッチでDFUブートローダーに入ります。
+
+```sh
+# 左基板（U1 / SW1–SW18）
+make s202409:20260930:dfu-split-left
+# 右基板（U2 / SW20–SW37）
+make s202409:20260930:dfu-split-right
+```
+
+同じHEXを左右に書き込むだけでは、EEPROMの左右設定は保証されません。
+`dfu-split-left` / `dfu-split-right` はそれぞれの左右設定も書き込みます。
+USBは左右どちらにも接続できます。TRRS接続中はUSBを片側だけに接続してください。
+TRRSの抜き差しはUSB電源を外してから行います。
+
+## ブートローダー
+
+* 各基板のリセットスイッチ: 左SW19 / 右SW38。
+* Bootmagic: USB接続する側の上段左端キーを押したまま接続（左SW1 / 右SW20）。EEPROMの通常設定も初期化されます。
+* 現行キーマップ: 右のCM_SYSを押し、右上段右端の`QK_BOOT`を押す。
+
+## 回帰確認
+
+```sh
+python3 keyboards/s202409/tests/test_keymap.py
+```
+
+GCCを使い、実際の20260930のコールバックに模擬QMK環境で入力します。
+USB通信・実機のスイッチ・QMKのタップ判定全体を検証するテストではありません。
