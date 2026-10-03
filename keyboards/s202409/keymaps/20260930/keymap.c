@@ -74,7 +74,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 
     [QFN] = LAYOUT_split_3x5_3( /* [> SPFN <] */
-        CM_ALCT,  CM_ALT4,  KC_ESC,   MO_EXCL,  SW_ATAB,        CM_STAB,  KC_HOME,  KC_UP,    KC_END,   KC_TAB,
+        CM_ALCT,  CM_ALT4,  KC_ESC,   SW_ATAB,  MO_EXCL,        CM_STAB,  KC_HOME,  KC_UP,    KC_END,   KC_TAB,
         KC_LALT,  KC_LSFT,  KC_DEL,   MO_HYPS,  KC_LGUI,        KC_BSPC,  KC_LEFT,  KC_DOWN,  KC_RGHT,  KC_ENT,
         KC_1,     KC_2,     KC_3,     KC_4,     KC_5,           KC_6,     KC_7,     KC_8,     KC_9,     KC_0,
                             _______,  _______,  _______,        _______,  _______,  _______
@@ -96,7 +96,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [HYPSPFN] = LAYOUT_split_3x5_3(
         _______,  _______,  _______,  _______,  _______,        _______,  CM_CHOM,  CM_UP,    CM_CEND,  _______,
-        _______,  _______,  _______,  _______,  _______,        _______,  CM_LEFT,  CM_DOWN,  CM_RGHT,  _______,
+        _______,  CM_WSCS,  _______,  _______,  _______,        _______,  CM_LEFT,  CM_DOWN,  CM_RGHT,  _______,
         _______,  _______,  _______,  _______,  _______,        _______,  _______,  _______,  _______,  _______,
                             _______,  _______,  _______,        _______,  _______,  _______
     ),
@@ -109,7 +109,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 
     [ALTTAB] = LAYOUT_split_3x5_3(
-        CM_STAB,  _______,  KC_UP,    _______,  KC_TAB,         _______,  _______,  KC_UP,    _______,  _______,
+        CM_STAB,  _______,  KC_UP,    KC_TAB,   _______,        _______,  _______,  KC_UP,    _______,  _______,
         _______,  KC_LEFT,  KC_DOWN,  KC_RGHT,  _______,        _______,  KC_LEFT,  KC_DOWN,  KC_RGHT,  _______,
         _______,  _______,  _______,  _______,  _______,        _______,  _______,  _______,  _______,  _______,
                             _______,  _______,  _______,        _______,  _______,  _______
