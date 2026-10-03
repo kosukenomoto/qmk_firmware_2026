@@ -1,7 +1,10 @@
 """Run keymap callback regressions with a minimal QMK mock: python3 test_keymap.py."""
-import pathlib,re,subprocess,tempfile
+import argparse,pathlib,re,subprocess,tempfile
 root=pathlib.Path(__file__).resolve().parents[3]
-src=root/'keyboards/s202409/keymaps/20260930/keymap.c'
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--keymap', default='20261004', choices=['20260930', '20261004'])
+args=parser.parse_args()
+src=root/f'keyboards/s202409/keymaps/{args.keymap}/keymap.c'
 temporary=tempfile.TemporaryDirectory(prefix='s202409-tests-')
 d=pathlib.Path(temporary.name)
 s=src.read_text()+(root/'keyboards/s202409/keymap_jp.h').read_text()
@@ -63,6 +66,10 @@ uint16_t get_tap_keycode(uint16_t k){return k&255;}
 h+='\n'.join(f'#define {k} {v}' for k,v in values.items())+'\n'
 # Functions refer to keycodes, so macros must precede them.
 pos=h.index('typedef struct');defs=h[h.index('#define KC_'):];h=h[:pos]+defs+h[pos:h.index('#define KC_')]
+if args.keymap == '20261004':
+ h += '#define SCREENSHOT_QFN\n#define QFN_LEFT_TAP_KEY KC_S\n#define QFN_LEFT_TAP_MODS (MOD_BIT(KC_LGUI) | MOD_BIT(KC_LSFT))\n'
+else:
+ h += '#define QFN_LEFT_TAP_KEY KC_SPC\n#define QFN_LEFT_TAP_MODS 0\n'
 (d/'qmk_stub.h').write_text(h)
 c='''#include <assert.h>
 #include <string.h>
@@ -82,7 +89,8 @@ static void event(uint16_t k,uint8_t row,uint8_t col,bool down){
 }
 int main(void){
  reset();event(CM_QFN,3,0,true);now+=40;event(CM_QFN,3,0,false);
- assert(taps[KC_SPC]==1 && layers==0);
+ assert(taps[QFN_LEFT_TAP_KEY]==1 && layers==0);
+ assert(tap_mods[QFN_LEFT_TAP_KEY]==QFN_LEFT_TAP_MODS && weak_mods==0);
  reset();event(CM_QFN,3,0,true);event(CM_QFN,7,0,true);now+=250;
  event(CM_QFN,3,0,false);assert(layers & (1u<<QFN));
  event(CM_QFN,7,0,false);assert(layers==0 && taps[KC_SPC]==0);
@@ -90,8 +98,8 @@ int main(void){
  event(CM_NUM,5,4,false);assert(layers & (1u<<SYM));
  event(CM_NUM,7,1,false);assert(layers==0 && taps[KC_GRAVE]==0);
  reset();event(CM_QFN,3,0,true);event(CM_NUM,7,1,true);
- event(SW_ATAB,0,4,true);assert(tap_mods[KC_TAB] & MOD_BIT(KC_LALT));
- event(KC_TAB,0,4,true);assert(weak_mods & MOD_BIT(KC_LALT));
+ event(SW_ATAB,0,3,true);assert(tap_mods[KC_TAB] & MOD_BIT(KC_LALT));
+ event(KC_TAB,0,3,true);assert(weak_mods & MOD_BIT(KC_LALT));
  event(CM_NUM,7,1,false);assert(alt_tab_active && (layers & (1u<<QFN)));
  layer_on(JFN);event(CM_QFN,3,0,false);
  assert(!alt_tab_active && !(weak_mods & MOD_BIT(KC_LALT)) && layers==(1u<<JFN));
@@ -107,10 +115,33 @@ int main(void){
  assert(alt_ctrl_reports>0 && alt_tab_active);
  event(CM_QFN,3,0,false);assert(weak_mods==0 && layers==0);
  reset();now=65520;event(CM_QFN,3,0,true);now=20;
- event(CM_QFN,3,0,false);assert(taps[KC_SPC]==1);
+ event(CM_QFN,3,0,false);assert(taps[QFN_LEFT_TAP_KEY]==1);
  reset();assert(!process_record_user(CM_LEFT,&(keyrecord_t){.event={.pressed=true}}));
  assert(taps[KC_LEFT]==4);
+ #ifdef SCREENSHOT_QFN
+ // Right thumb taps still send Space.
+ reset();event(CM_QFN,7,0,true);now+=40;event(CM_QFN,7,0,false);
+ assert(taps[KC_SPC]==1 && taps[KC_S]==0 && layers==0);
+ // Holding the left thumb uses QFN and never takes a screenshot.
+ reset();event(CM_QFN,3,0,true);assert(layers & (1u<<QFN));now+=250;
+ event(CM_QFN,3,0,false);assert(taps[KC_S]==0 && taps[KC_SPC]==0 && layers==0);
+ // A layer chord cancels the left thumb's tap, even before TAPPING_TERM.
+ reset();event(CM_QFN,3,0,true);event(KC_ESC,0,2,true);now+=20;
+ event(KC_ESC,0,2,false);event(CM_QFN,3,0,false);
+ assert(taps[KC_S]==0 && taps[KC_SPC]==0 && layers==0);
+ // One screenshot per completed short tap, none on initial press.
+ reset();event(CM_QFN,3,0,true);assert(taps[KC_S]==0);now+=20;
+ event(CM_QFN,3,0,false);event(CM_QFN,3,0,true);now+=20;
+ event(CM_QFN,3,0,false);assert(taps[KC_S]==2 && taps[KC_SPC]==0);
+ // Restore modifiers that were already held when the macro ran.
+ reset();physical_mods=MOD_BIT(KC_LSFT);event(CM_QFN,3,0,true);
+ weak_mods=MOD_BIT(KC_LSFT);now+=20;event(CM_QFN,3,0,false);
+ assert(tap_mods[KC_S]==QFN_LEFT_TAP_MODS);
+ assert(physical_mods==MOD_BIT(KC_LSFT) && weak_mods==MOD_BIT(KC_LSFT));
+ puts("PASS: 14 keymap regressions (mock QMK callbacks)");
+#else
  puts("PASS: 9 keymap regressions (mock QMK callbacks)");
+#endif
 }
 '''.replace('KEYMAP',str(src))
 (d/'test.c').write_text(c)
