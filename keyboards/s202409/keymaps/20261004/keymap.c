@@ -177,11 +177,12 @@ static layer_tap_state_t layer_taps[MATRIX_ROWS][MATRIX_COLS];
 static uint8_t qfn_count;
 static uint8_t num_count;
 static bool alt_tab_active;
+static bool alt_f4_pressed;
 static uint8_t symbol_shift_count;
 
 static void restore_held_weak_mods(void) {
     // action_exec() clears weak modifiers on every new key press.
-    if (alt_tab_active) {
+    if (alt_tab_active || alt_f4_pressed) {
         add_weak_mods(MOD_BIT(KC_LALT));
     }
     if (symbol_shift_count) {
@@ -201,10 +202,32 @@ void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 static void clear_alt_tab(void) {
     if (alt_tab_active) {
-        del_weak_mods(MOD_BIT(KC_LALT));
+        alt_tab_active = false;
+        if (!alt_f4_pressed) {
+            del_weak_mods(MOD_BIT(KC_LALT));
+        }
         send_keyboard_report();
         layer_off(ALTTAB);
-        alt_tab_active = false;
+    }
+}
+
+static void alt_f4_keypress(keyrecord_t *record) {
+    if (record->event.pressed) {
+        if (!alt_f4_pressed) {
+            alt_f4_pressed = true;
+            add_weak_mods(MOD_BIT(KC_LALT));
+            send_keyboard_report();
+            wait_ms(DELAY_KEY_MS);
+            register_code(KC_F4);
+        }
+    } else if (alt_f4_pressed) {
+        // Release F4 before Alt, preserving other owners of Alt.
+        unregister_code(KC_F4);
+        alt_f4_pressed = false;
+        if (!alt_tab_active) {
+            del_weak_mods(MOD_BIT(KC_LALT));
+        }
+        send_keyboard_report();
     }
 }
 
@@ -323,6 +346,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
   }
   switch (keycode) {
+    case CM_ALT4:
+      alt_f4_keypress(record);
+      return false;
     case CM_QFN:
       user_layer_tap(record, QFN, &qfn_count);
       return false;

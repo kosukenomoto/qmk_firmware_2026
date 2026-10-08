@@ -28,10 +28,10 @@ h='''#pragma once
 #define MOD_MASK_CG (MOD_BIT(KC_LCTL) | MOD_BIT(KC_LGUI))
 #define FLOW_TAP_TERM 150
 #define TAPPING_TERM 200
-#define S(k) (k)
-#define C(k) (k)
-#define A(k) (k)
-#define G(k) (k)
+#define S(k) (0x0200 | (k))
+#define C(k) (0x0100 | (k))
+#define A(k) (0x0400 | (k))
+#define G(k) (0x0800 | (k))
 #define MO(k) (k)
 #define LSFT_T(k) (0x1000 | (k))
 #define LALT_T(k) (0x2000 | (k))
@@ -46,19 +46,27 @@ static uint8_t tap_mods[256];
 static bool caps;
 static uint8_t report_mods;
 static unsigned alt_ctrl_reports;
+static bool pressed_codes[256];
+typedef struct {uint16_t time; uint8_t mods; bool f4;} mock_report_t;
+static mock_report_t reports[128];
+static unsigned report_count;
 uint8_t get_mods(void){return physical_mods;}
 uint8_t get_weak_mods(void){return weak_mods;}
 void add_weak_mods(uint8_t m){weak_mods|=m;}
 void del_weak_mods(uint8_t m){weak_mods&=~m;}
 void set_weak_mods(uint8_t m){weak_mods=m;}
-void send_keyboard_report(void){report_mods=physical_mods|weak_mods;if((report_mods & 5)==5) ++alt_ctrl_reports;}
+void send_keyboard_report(void){
+ report_mods=physical_mods|weak_mods;
+ if((report_mods & 5)==5) ++alt_ctrl_reports;
+ if(report_count<128)reports[report_count++]=(mock_report_t){now,report_mods,pressed_codes[KC_F4]};
+}
 uint16_t timer_read(void){return now;}
 uint16_t timer_elapsed(uint16_t t){return now-t;}
 void wait_ms(uint16_t ms){now+=ms;}
 void layer_on(uint8_t l){layers|=1u<<l;}
 void layer_off(uint8_t l){layers&=~(1u<<l);}
-void register_code(uint8_t k){send_keyboard_report();}
-void unregister_code(uint8_t k){send_keyboard_report();}
+void register_code(uint8_t k){pressed_codes[k]=true;send_keyboard_report();}
+void unregister_code(uint8_t k){pressed_codes[k]=false;send_keyboard_report();}
 void tap_code(uint8_t k){++taps[k];tap_mods[k]=physical_mods|weak_mods;send_keyboard_report();}
 led_t host_keyboard_led_state(void){return (led_t){caps};}
 uint16_t get_tap_keycode(uint16_t k){return k&255;}
@@ -80,6 +88,10 @@ static void reset(void){
  memset(tap_mods,0,sizeof tap_mods); qfn_count=num_count=symbol_shift_count=0;
  alt_tab_active=false; physical_mods=weak_mods=report_mods=0;
  layers=0;now=0;caps=false;alt_ctrl_reports=0;
+ memset(pressed_codes,0,sizeof pressed_codes);report_count=0;
+#ifdef SCREENSHOT_QFN
+ alt_f4_pressed=false;
+#endif
 }
 static void event(uint16_t k,uint8_t row,uint8_t col,bool down){
  keyrecord_t r={.event={.pressed=down,.time=now,.key={row,col}}};
@@ -138,7 +150,35 @@ int main(void){
  weak_mods=MOD_BIT(KC_LSFT);now+=20;event(CM_QFN,3,0,false);
  assert(tap_mods[KC_S]==QFN_LEFT_TAP_MODS);
  assert(physical_mods==MOD_BIT(KC_LSFT) && weak_mods==MOD_BIT(KC_LSFT));
- puts("PASS: 14 keymap regressions (mock QMK callbacks)");
+  // Alt-only report precedes F4 by at least 60 ms. Release F4 before Alt.
+ reset();event(CM_ALT4,0,1,true);
+ assert(reports[0].mods==MOD_BIT(KC_LALT) && !reports[0].f4);
+ assert(reports[1].f4 && reports[1].mods==MOD_BIT(KC_LALT));
+ assert((uint16_t)(reports[1].time-reports[0].time)>=60);
+ unsigned release_start=report_count;
+ event(CM_ALT4,0,1,false);
+ assert(!reports[release_start].f4 && reports[release_start].mods==MOD_BIT(KC_LALT));
+ assert(!reports[release_start+1].f4 && reports[release_start+1].mods==0);
+ assert(!alt_f4_pressed && weak_mods==0);
+ // A new key press must not clear Alt while F4 remains down.
+ reset();event(CM_ALT4,0,1,true);event(KC_Q,0,0,true);
+ assert(pressed_codes[KC_F4] && (weak_mods & MOD_BIT(KC_LALT)));
+ event(CM_ALT4,0,1,false);assert(!pressed_codes[KC_F4] && weak_mods==0);
+ // The macro does not release a physically held Alt.
+ reset();physical_mods=MOD_BIT(KC_LALT);
+ event(CM_ALT4,0,1,true);event(CM_ALT4,0,1,false);
+ assert(physical_mods==MOD_BIT(KC_LALT) && weak_mods==0);
+ // Ending Alt+F4 must not end an existing Alt+Tab session.
+ reset();event(CM_QFN,3,0,true);event(SW_ATAB,0,3,true);
+ event(CM_ALT4,0,1,true);event(CM_ALT4,0,1,false);
+ assert(alt_tab_active && (weak_mods & MOD_BIT(KC_LALT)));
+ event(CM_QFN,3,0,false);assert(weak_mods==0);
+ // Ending QFN/Alt+Tab while F4 is held must retain Alt for F4.
+ reset();event(CM_QFN,3,0,true);event(SW_ATAB,0,3,true);
+ event(CM_ALT4,0,1,true);event(CM_QFN,3,0,false);
+ assert(!alt_tab_active && alt_f4_pressed && (weak_mods & MOD_BIT(KC_LALT)));
+ event(CM_ALT4,0,1,false);assert(weak_mods==0);
+ puts("PASS: 19 keymap regressions (mock QMK callbacks)");
 #else
  puts("PASS: 9 keymap regressions (mock QMK callbacks)");
 #endif
