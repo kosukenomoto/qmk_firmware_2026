@@ -19,6 +19,7 @@
 
 #define Z_SFT   LSFT_T(KC_Z)
 #define A_ALT   LALT_T(KC_A)
+#define L_ALT   LALT_T(KC_L)
 #define G_GUI   LGUI_T(KC_G)
 #define MO_EXCL MO(EXCL)
 #define MO_HYPS MO(HYPSPFN)
@@ -68,9 +69,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [JBASE] = LAYOUT_split_3x5_3(  /* Qwerty win jpkey */
         KC_Q,    KC_W,    KC_E,     KC_R,    KC_T,             KC_Y,    KC_U,    KC_I,     KC_O,    KC_P,
-        A_ALT,   KC_S,    KC_D,     KC_F,    G_GUI,            KC_H,    KC_J,    KC_K,     KC_L,    CM_NUM,
+        A_ALT,   KC_S,    KC_D,     KC_F,    G_GUI,            KC_H,    KC_J,    KC_K,     L_ALT,   CM_NUM,
         Z_SFT,   KC_X,    KC_C,     KC_V,    KC_B,             KC_N,    KC_M,    KC_COMM,  KC_DOT,  KC_SLSH,
-                          CM_QFN,   KC_LSFT, KC_LCTL,          CM_QFN,  CM_NUM,  CM_SYS
+                          CM_QFN,   KC_LSFT, KC_LCTL,          CM_QFN,  KC_LSFT, CM_SYS
     ),
 
     [QFN] = LAYOUT_split_3x5_3( /* [> SPFN <] */
