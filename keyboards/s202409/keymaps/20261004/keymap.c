@@ -84,9 +84,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 
     [SYM] = LAYOUT_split_3x5_3( /* [> SPFN <] */
-        MC_EXLM,  JP_AT,   MC_HASH,   MC_DLR,   MC_PERC,        JP_CIRC,  MC_AMPR,  MC_ASTR,  MC_PLUS,  MC_GRV,
-        MC_UNDS,  KC_SLSH, KC_MINS,   MC_LPRN,  MC_RPRN,        MC_LCBR,  MC_RCBR,  JP_LBRC,  JP_RBRC,  _______,
-        MC_QUES,  MC_TILD, JP_COLN,   JP_SCLN,  JP_BSLS,        MC_QUOT,  MC_DQUO,  MC_PIPE,  MC_EQL,   _______,
+        MC_EXLM,  JP_AT,   MC_HASH,   MC_DLR,   MC_PERC,        JP_CIRC,  MC_AMPR,  MC_ASTR,  MC_GRV,   _______,
+        MC_UNDS,  MC_EQL,  KC_MINS,   MC_LPRN,  MC_RPRN,        MC_LCBR,  MC_RCBR,  JP_LBRC,  JP_RBRC,  _______,
+        MC_PLUS,  MC_TILD, JP_COLN,   JP_SCLN,  JP_BSLS,        MC_QUOT,  MC_DQUO,  MC_PIPE,  _______,  _______,
                             _______,  _______,  _______,        _______,  _______,  _______
     ),
 
