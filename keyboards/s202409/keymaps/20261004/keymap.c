@@ -21,6 +21,8 @@
 #define A_ALT   LALT_T(KC_A)
 #define L_ALT   LALT_T(KC_L)
 #define G_GUI   LGUI_T(KC_G)
+// 親指シフト: ホールドでShift、タップで半角/全角（タップ時の処理はprocess_record_user）
+#define SFT_IME LSFT_T(JP_ZKHK)
 #define MO_EXCL MO(EXCL)
 #define MO_HYPS MO(HYPSPFN)
 #define CM_SYS  MO(JFN)
@@ -71,7 +73,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_Q,    KC_W,    KC_E,     KC_R,    KC_T,             KC_Y,    KC_U,    KC_I,     KC_O,    KC_P,
         A_ALT,   KC_S,    KC_D,     KC_F,    G_GUI,            KC_H,    KC_J,    KC_K,     L_ALT,   CM_NUM,
         Z_SFT,   KC_X,    KC_C,     KC_V,    KC_B,             KC_N,    KC_M,    KC_COMM,  KC_DOT,  KC_SLSH,
-                          CM_QFN,   KC_LSFT, KC_LCTL,          CM_QFN,  KC_LSFT, CM_SYS
+                          CM_QFN,   SFT_IME, KC_LCTL,          CM_QFN,  SFT_IME, CM_SYS
     ),
 
     [QFN] = LAYOUT_split_3x5_3( /* [> SPFN <] */
@@ -158,6 +160,20 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
+// 親指シフトは他のキーを押した時点でShiftに確定する。
+bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
+    return keycode == SFT_IME;
+}
+
+// 親指シフトは同じ手のキーとの組み合わせでもShiftとして扱う。
+bool get_chordal_hold(uint16_t tap_hold_keycode, keyrecord_t *tap_hold_record,
+                      uint16_t other_keycode, keyrecord_t *other_record) {
+    if (tap_hold_keycode == SFT_IME) {
+        return true;
+    }
+    return get_chordal_hold_default(tap_hold_record, other_record);
+}
+
 bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case Z_SFT:
@@ -167,7 +183,7 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
-// Track each physical key: CM_QFN and CM_NUM both occur more than once.
+// Track each physical key: CM_QFN occurs more than once.
 typedef struct {
     bool down;
     bool tap;
@@ -262,6 +278,24 @@ static void tap_hnzn(void) {
     }
 }
 
+// コロン。Shift押下中はShiftを外してセミコロン（JISではShift+;は+になるため）。
+static void tap_colon(void) {
+    const uint8_t saved_mods      = get_mods();
+    const uint8_t saved_weak_mods = get_weak_mods();
+    if ((saved_mods | saved_weak_mods) & MOD_MASK_SHIFT) {
+        del_mods(MOD_MASK_SHIFT);
+        del_weak_mods(MOD_MASK_SHIFT);
+        send_keyboard_report();
+        wait_ms(DELAY_KEY_MS);
+        tap_code(JP_SCLN);
+        set_mods(saved_mods);
+        set_weak_mods(saved_weak_mods);
+        send_keyboard_report();
+    } else {
+        tap_code(JP_COLN);
+    }
+}
+
 static void tap_screenshot(void) {
     const uint8_t saved_weak_mods = get_weak_mods();
     add_weak_mods(MOD_BIT(KC_LGUI) | MOD_BIT(KC_LSFT));
@@ -301,7 +335,7 @@ static void user_layer_tap(keyrecord_t *record, uint8_t layer, uint8_t *count) {
                     tap_code(KC_SPC);
                 }
             } else {
-                tap_hnzn();
+                tap_colon();
             }
         }
     }
@@ -347,6 +381,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
   }
   switch (keycode) {
+    case SFT_IME:
+      if (record->tap.count) {
+        if (record->event.pressed) {
+          tap_hnzn();
+        }
+        return false;
+      }
+      return true;
     case CM_ALT4:
       alt_f4_keypress(record);
       return false;

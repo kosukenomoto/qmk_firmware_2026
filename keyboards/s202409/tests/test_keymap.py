@@ -10,7 +10,7 @@ d=pathlib.Path(temporary.name)
 s=src.read_text()+(root/'keyboards/s202409/keymap_jp.h').read_text()
 keys=sorted(set(re.findall(r'\bKC_[A-Z0-9_]+\b',s)))
 values={f'KC_{chr(65+i)}':4+i for i in range(26)}
-values.update(KC_LCTL=224,KC_LSFT=225,KC_LALT=226,KC_LGUI=227)
+values.update(KC_LCTL=224,KC_LSFT=225,KC_LALT=226,KC_LGUI=227,KC_RSFT=229)
 for key in keys:
  if key not in values:values[key]=40+len([v for v in values.values() if 40<=v<224])
 h='''#pragma once
@@ -26,6 +26,7 @@ h='''#pragma once
 #define MOD_BIT(k) (1u << ((k) & 7))
 #define MOD_BIT_LALT MOD_BIT(KC_LALT)
 #define MOD_MASK_CG (MOD_BIT(KC_LCTL) | MOD_BIT(KC_LGUI))
+#define MOD_MASK_SHIFT (MOD_BIT(KC_LSFT) | MOD_BIT(KC_RSFT))
 #define FLOW_TAP_TERM 150
 #define TAPPING_TERM 200
 #define S(k) (0x0200 | (k))
@@ -36,7 +37,7 @@ h='''#pragma once
 #define LSFT_T(k) (0x1000 | (k))
 #define LALT_T(k) (0x2000 | (k))
 #define LGUI_T(k) (0x3000 | (k))
-typedef struct {struct {bool pressed; uint16_t time; struct {uint8_t row,col;} key;} event;} keyrecord_t;
+typedef struct {struct {bool pressed; uint16_t time; struct {uint8_t row,col;} key;} event; struct {uint8_t count;} tap;} keyrecord_t;
 typedef struct {bool caps_lock;} led_t;
 static uint16_t now;
 static uint8_t physical_mods,weak_mods;
@@ -51,6 +52,9 @@ typedef struct {uint16_t time; uint8_t mods; bool f4;} mock_report_t;
 static mock_report_t reports[128];
 static unsigned report_count;
 uint8_t get_mods(void){return physical_mods;}
+void del_mods(uint8_t m){physical_mods&=~m;}
+void set_mods(uint8_t m){physical_mods=m;}
+bool get_chordal_hold_default(keyrecord_t *a, keyrecord_t *b){return true;}
 uint8_t get_weak_mods(void){return weak_mods;}
 void add_weak_mods(uint8_t m){weak_mods|=m;}
 void del_weak_mods(uint8_t m){weak_mods&=~m;}
@@ -93,12 +97,13 @@ static void reset(void){
  alt_f4_pressed=false;
 #endif
 }
-static void event(uint16_t k,uint8_t row,uint8_t col,bool down){
- keyrecord_t r={.event={.pressed=down,.time=now,.key={row,col}}};
+static void tap_event(uint16_t k,uint8_t row,uint8_t col,bool down,uint8_t count){
+ keyrecord_t r={.event={.pressed=down,.time=now,.key={row,col}},.tap={count}};
  if(down)weak_mods=0; // QMK action_exec clears weak mods before callbacks.
  assert(pre_process_record_user(k,&r));
  if(process_record_user(k,&r))post_process_record_user(k,&r);
 }
+static void event(uint16_t k,uint8_t row,uint8_t col,bool down){tap_event(k,row,col,down,0);}
 int main(void){
  reset();event(CM_QFN,3,0,true);now+=40;event(CM_QFN,3,0,false);
  assert(taps[QFN_LEFT_TAP_KEY]==1 && layers==0);
@@ -120,9 +125,27 @@ int main(void){
  event(MC_EXLM,0,0,false);assert(weak_mods & MOD_BIT(KC_LSFT));
  event(KC_A,1,0,true);assert(weak_mods & MOD_BIT(KC_LSFT));
  event(MC_HASH,0,2,false);assert(weak_mods==0 && physical_mods==MOD_BIT(KC_LSFT));
+ #ifdef SCREENSHOT_QFN
+ // Thumb Shift tap toggles IME (Alt+`) and turns Caps Lock off.
+ reset();physical_mods=MOD_BIT(KC_LALT);caps=true;
+ tap_event(SFT_IME,3,1,true,1);tap_event(SFT_IME,3,1,false,1);
+ assert(taps[KC_GRAVE]==1 && taps[KC_CAPS]==1 && physical_mods==MOD_BIT(KC_LALT) && weak_mods==0);
+ // Thumb Shift hold is left to QMK as a plain Shift.
+ reset();assert(process_record_user(SFT_IME,&(keyrecord_t){.event={.pressed=true}}));
+ assert(taps[KC_GRAVE]==0);
+ // CM_NUM tap types a colon.
+ reset();event(CM_NUM,5,4,true);now+=30;event(CM_NUM,5,4,false);
+ assert(taps[JP_COLN]==1 && taps[JP_SCLN]==0 && taps[KC_GRAVE]==0 && layers==0);
+ // With Shift held, CM_NUM tap types an unshifted semicolon, then restores Shift.
+ reset();physical_mods=MOD_BIT(KC_LSFT);
+ event(CM_NUM,5,4,true);now+=30;event(CM_NUM,5,4,false);
+ assert(taps[JP_SCLN]==1 && taps[JP_COLN]==0 && tap_mods[JP_SCLN]==0);
+ assert(physical_mods==MOD_BIT(KC_LSFT));
+#else
  reset();physical_mods=MOD_BIT(KC_LALT);caps=true;
  event(CM_NUM,7,1,true);now+=30;event(CM_NUM,7,1,false);
  assert(taps[KC_GRAVE]==1 && taps[KC_CAPS]==1 && physical_mods==MOD_BIT(KC_LALT) && weak_mods==0);
+#endif
  reset();event(CM_QFN,3,0,true);event(CM_ALCT,0,0,true);
  assert(alt_ctrl_reports>0 && alt_tab_active);
  event(CM_QFN,3,0,false);assert(weak_mods==0 && layers==0);
@@ -178,7 +201,7 @@ int main(void){
  event(CM_ALT4,0,1,true);event(CM_QFN,3,0,false);
  assert(!alt_tab_active && alt_f4_pressed && (weak_mods & MOD_BIT(KC_LALT)));
  event(CM_ALT4,0,1,false);assert(weak_mods==0);
- puts("PASS: 19 keymap regressions (mock QMK callbacks)");
+ puts("PASS: 22 keymap regressions (mock QMK callbacks)");
 #else
  puts("PASS: 9 keymap regressions (mock QMK callbacks)");
 #endif
