@@ -63,7 +63,6 @@ enum custom_keycodes {
   MC_PLUS,
   MC_ASTR,
   MC_RCBR,
-  MC_QUES,
   MC_UNDS,
 };
 
@@ -83,7 +82,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                             _______,  _______,  _______,        _______,  _______,  _______
     ),
 
-    [SYM] = LAYOUT_split_3x5_3( /* [> SPFN <] */
+    [SYM] = LAYOUT_split_3x5_3( /* [> CM_NUM <] */
         MC_EXLM,  JP_AT,   MC_HASH,   MC_DLR,   MC_PERC,        JP_CIRC,  MC_AMPR,  MC_ASTR,  MC_GRV,   _______,
         MC_UNDS,  MC_EQL,  KC_MINS,   MC_LPRN,  MC_RPRN,        MC_LCBR,  MC_RCBR,  JP_LBRC,  JP_RBRC,  _______,
         MC_PLUS,  MC_TILD, JP_COLN,   JP_SCLN,  JP_BSLS,        MC_QUOT,  MC_DQUO,  MC_PIPE,  _______,  _______,
@@ -447,7 +446,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case MC_PLUS: shift_keypress(record, KC_SCLN); return false;
     case MC_ASTR: shift_keypress(record, KC_QUOT); return false;
     case MC_RCBR: shift_keypress(record, KC_NUHS); return false;
-    case MC_QUES: shift_keypress(record, KC_SLSH); return false;
     case MC_UNDS: shift_keypress(record, KC_INT1); return false;
   }
   return true;
