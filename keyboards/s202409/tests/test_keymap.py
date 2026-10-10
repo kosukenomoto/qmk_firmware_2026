@@ -29,6 +29,7 @@ h='''#pragma once
 #define MOD_MASK_SHIFT (MOD_BIT(KC_LSFT) | MOD_BIT(KC_RSFT))
 #define FLOW_TAP_TERM 150
 #define TAPPING_TERM 200
+#define QUICK_TAP_TERM TAPPING_TERM
 #define S(k) (0x0200 | (k))
 #define C(k) (0x0100 | (k))
 #define A(k) (0x0400 | (k))
@@ -130,6 +131,8 @@ int main(void){
  reset();physical_mods=MOD_BIT(KC_LALT);caps=true;
  tap_event(SFT_IME,3,1,true,1);tap_event(SFT_IME,3,1,false,1);
  assert(taps[KC_GRAVE]==1 && taps[KC_CAPS]==1 && physical_mods==MOD_BIT(KC_LALT) && weak_mods==0);
+ // Re-pressing thumb Shift right after a tap is a hold, not a second IME tap.
+ assert(get_quick_tap_term(SFT_IME,0)==0 && get_quick_tap_term(Z_SFT,0)==QUICK_TAP_TERM);
  // Thumb Shift hold is left to QMK as a plain Shift.
  reset();assert(process_record_user(SFT_IME,&(keyrecord_t){.event={.pressed=true}}));
  assert(taps[KC_GRAVE]==0);
@@ -201,7 +204,7 @@ int main(void){
  event(CM_ALT4,0,1,true);event(CM_QFN,3,0,false);
  assert(!alt_tab_active && alt_f4_pressed && (weak_mods & MOD_BIT(KC_LALT)));
  event(CM_ALT4,0,1,false);assert(weak_mods==0);
- puts("PASS: 22 keymap regressions (mock QMK callbacks)");
+ puts("PASS: 23 keymap regressions (mock QMK callbacks)");
 #else
  puts("PASS: 9 keymap regressions (mock QMK callbacks)");
 #endif

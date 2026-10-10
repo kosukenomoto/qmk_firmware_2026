@@ -159,6 +159,15 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
+// 親指シフトはタップ直後に押し直してもShiftとして使う。
+// QMKの既定ではQUICK_TAP_TERM内の再押下が2回目のタップになり、IMEを戻してしまう。
+uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t *record) {
+    if (keycode == SFT_IME) {
+        return 0;
+    }
+    return QUICK_TAP_TERM;
+}
+
 // 親指シフトは他のキーを押した時点でShiftに確定する。
 bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
     return keycode == SFT_IME;
